@@ -59,6 +59,10 @@ public class Message {
         return output;
     }
     
+    public void reduceTimeTolive(){
+        timeToLive--;
+    }
+    
     class RouterAddress{
         public String ip;
         public int port;
