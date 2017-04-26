@@ -63,7 +63,21 @@ public class Message {
         timeToLive--;
     }
     
-    class RouterAddress{
+    public String getSrcIP(){ return srcIP;}
+    
+    public String getDstIP(){ return dstIP;}
+    
+    public int getSrcPort(){ return srcPort;}
+    
+    public int getDstPort(){ return dstPort;}
+    
+    public String getMessage(){ return msg;}
+    
+    public int getTimeToLive(){ return timeToLive;}
+    
+    public ArrayList<RouterAddress> getRouters(){ return routers;}
+    
+    public class RouterAddress{
         public String ip;
         public int port;
         
