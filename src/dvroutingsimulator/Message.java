@@ -18,7 +18,8 @@ public class Message {
     int srcPort;
     int dstPort;
     String msg;
-    ArrayList<RouterAddress> routers;
+    ArrayList<Address> routers;
+    // NEED TYPES: DV, WEIGHT, CONTENT
     
     public Message(String srcip, int srcport, String dstip, int dstport, int remainingHops, String mess){
         srcIP = srcip;
@@ -27,7 +28,7 @@ public class Message {
         dstPort = dstport;
         timeToLive = remainingHops;
         msg = mess;
-        routers = new ArrayList<RouterAddress>();
+        routers = new ArrayList<Address>();
     }
     
     public Message(String text){
@@ -39,22 +40,22 @@ public class Message {
         srcPort = Integer.parseInt(fields[3]);
         dstPort = Integer.parseInt(fields[4]);
         msg = fields[5];
-        routers = new ArrayList<RouterAddress>();
+        routers = new ArrayList<Address>();
         for(int i=6; i<fields.length; i++){
             String[] tmp = fields[i].split("-");
-            routers.add(new RouterAddress(tmp[0],Integer.parseInt(tmp[1])));
+            routers.add(new Address(tmp[0],Integer.parseInt(tmp[1])));
         }
     }
     
     public void addRouter(String ip, int port){
-        routers.add(new RouterAddress(ip,port));
+        routers.add(new Address(ip,port));
     }
     
     public String toString(){
         String output = timeToLive +" "+ srcIP +" "+ dstIP 
                 +" "+ srcPort +" "+ dstPort +" "+ msg;
-        for(RouterAddress ra: routers){
-            output += " " + ra.ip + "-" + ra.port;
+        for(Address ad: routers){
+            output += " " + ad.ip + "-" + ad.port;
         }
         return output;
     }
@@ -75,15 +76,6 @@ public class Message {
     
     public int getTimeToLive(){ return timeToLive;}
     
-    public ArrayList<RouterAddress> getRouters(){ return routers;}
+    public ArrayList<Address> getRouters(){ return routers;}
     
-    public class RouterAddress{
-        public String ip;
-        public int port;
-        
-        RouterAddress(String i, int p){
-            ip = i;
-            port = p;
-        }
-    }
 }
