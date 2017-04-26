@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package dvroutingsimulator;
 
 /**
@@ -17,4 +13,21 @@ public class Address {
         ip = i;
         port = p;
     }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Address) {
+            Address a = (Address) o;
+            return this.ip.equals(a.ip) && this.port == a.port;
+        }
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + ip.hashCode();
+        result = 31 * result + port;
+        return result;
+    } 
 }
