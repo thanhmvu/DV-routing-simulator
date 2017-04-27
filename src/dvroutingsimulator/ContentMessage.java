@@ -69,6 +69,14 @@ public class ContentMessage extends Message{
         path.add(new Address(ip,port));
     }
     
+    /**
+     * Output a string representation of a ContentMessage 
+     * using the following format: 
+     * 
+     * "type[delimiter]timeToLive[delimiter]srcIP[delimiter]srcPort[delimiter]
+     * dstIP[delimiter]dstPort[delimiter]msg[delimiter]ip-port ip-port ..."
+     * 
+     */
     public String toString(){
         String output = type +delimiter+ timeToLive 
                 +delimiter+ srcIP +delimiter+ srcPort 

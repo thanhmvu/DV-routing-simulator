@@ -30,4 +30,5 @@ public class Message {
     
     public int getDstPort(){ return dstPort;}
     
+    public MsgType getType(){ return type;}
 }
