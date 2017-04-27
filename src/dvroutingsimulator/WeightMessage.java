@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package dvroutingsimulator;
 
 /**
@@ -25,6 +21,7 @@ public class WeightMessage extends Message{
      * Message's format: 
      * "type[delimiter]srcIP[delimiter]srcPort[delimiter]
      * dstIP[delimiter]dstPort[delimiter]weight"
+     * @param text
      */
     public WeightMessage(String text){
         String[] fields = text.split(this.delimiter);
@@ -51,7 +48,9 @@ public class WeightMessage extends Message{
      * using the following format: 
      * "type[delimiter]srcIP[delimiter]srcPort[delimiter]
      * dstIP[delimiter]dstPort[delimiter]weight"
+     * @return 
      */
+    @Override
     public String toString(){
         String output = type +delimiter+ srcIP +delimiter+ srcPort 
                 +delimiter+ dstIP +delimiter+ dstPort 

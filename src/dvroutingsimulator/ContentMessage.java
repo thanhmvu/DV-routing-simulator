@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package dvroutingsimulator;
 
 import java.util.ArrayList;
@@ -23,9 +19,9 @@ public class ContentMessage extends Message{
         this.srcPort = srcport;
         this.dstIP = dstip;
         this.dstPort = dstport;
-        this.msg = msg;
+        this.msg = mess;
         this.timeToLive = remainingHops;
-        this.path = new ArrayList<Address>();
+        this.path = new ArrayList<>();
     }
     /**
      * Constructor that parses a string representation of a ContentMessage
@@ -76,7 +72,9 @@ public class ContentMessage extends Message{
      * "type[delimiter]timeToLive[delimiter]srcIP[delimiter]srcPort[delimiter]
      * dstIP[delimiter]dstPort[delimiter]msg[delimiter]ip-port ip-port ..."
      * 
+     * @return a string representation of a content message
      */
+    @Override
     public String toString(){
         String output = type +delimiter+ timeToLive 
                 +delimiter+ srcIP +delimiter+ srcPort 

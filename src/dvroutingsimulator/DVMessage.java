@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package dvroutingsimulator;
 
 /**
@@ -25,6 +21,7 @@ public class DVMessage extends Message{
      * Message's format: 
      * "type[delimiter]srcIP[delimiter]srcPort[delimiter]
      * dstIP[delimiter]dstPort[delimiter]distanceVector"
+     * @param text
      */
     public DVMessage(String text){
         String[] fields = text.split(this.delimiter);
@@ -51,7 +48,9 @@ public class DVMessage extends Message{
      * using the following format: 
      * "type[delimiter]srcIP[delimiter]srcPort[delimiter]
      * dstIP[delimiter]dstPort[delimiter]distanceVector"
+     * @return a string representation of a DVMessage 
      */
+    @Override
     public String toString(){
         String output = type +delimiter+ srcIP +delimiter+ srcPort 
                 +delimiter+ dstIP +delimiter+ dstPort 
