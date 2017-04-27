@@ -14,11 +14,7 @@ public class ContentMessage extends Message{
     
     
     public ContentMessage(String srcip, int srcport, String dstip, int dstport, int remainingHops, String mess){
-        this.type = MsgType.CONTENT;
-        this.srcIP = srcip;
-        this.srcPort = srcport;
-        this.dstIP = dstip;
-        this.dstPort = dstport;
+        super(MsgType.CONTENT, srcip, srcport, dstip, dstport);
         this.msg = mess;
         this.timeToLive = remainingHops;
         this.path = new ArrayList<>();
@@ -33,6 +29,7 @@ public class ContentMessage extends Message{
      * 
      */
     public ContentMessage(String text){
+        this("", 0, "", 0, 0, "");
         String[] fields = text.split(this.delimiter);
         
         if(fields.length < 7){
@@ -45,14 +42,11 @@ public class ContentMessage extends Message{
             return;
         }
         
-        this.type = MsgType.CONTENT;
         this.timeToLive = Integer.parseInt(fields[1]);
-        this.srcIP = fields[2];
-        this.srcPort = Integer.parseInt(fields[3]);
-        this.dstIP = fields[4];
-        this.dstPort = Integer.parseInt(fields[5]);
+        this.srcAdd = new Address(fields[2], Integer.parseInt(fields[3]));
+        this.dstAdd = new Address(fields[4], Integer.parseInt(fields[5]));   
         this.msg = fields[6];
-        this.path = new ArrayList<Address>();
+        this.path = new ArrayList<>();
         if (fields.length > 7) {
             for (String address : fields[7].split(" ")) {
                 String[] tmp = address.split("-");
@@ -77,8 +71,8 @@ public class ContentMessage extends Message{
     @Override
     public String toString(){
         String output = type +delimiter+ timeToLive 
-                +delimiter+ srcIP +delimiter+ srcPort 
-                +delimiter+ dstIP +delimiter+ dstPort 
+                +delimiter+ srcAdd.ip +delimiter+ srcAdd.port 
+                +delimiter+ dstAdd.ip +delimiter+ dstAdd.port 
                 +delimiter+ msg +delimiter;
         for(Address ad: path){
             output += ad.ip +"-"+ ad.port +" ";

@@ -9,11 +9,7 @@ public class WeightMessage extends Message{
     int weight;
     
     public WeightMessage(String srcip, int srcport, String dstip, int dstport, int w){
-        this.type = MsgType.WEIGHT;
-        this.srcIP = srcip;
-        this.srcPort = srcport;
-        this.dstIP = dstip;
-        this.dstPort = dstport;
+        super(MsgType.WEIGHT, srcip, srcport, dstip, dstport);
         this.weight = w;
     }
     /**
@@ -21,9 +17,10 @@ public class WeightMessage extends Message{
      * Message's format: 
      * "type[delimiter]srcIP[delimiter]srcPort[delimiter]
      * dstIP[delimiter]dstPort[delimiter]weight"
-     * @param text
+     * @param text the text from which 
      */
     public WeightMessage(String text){
+        this("", 0, "", 0, 0);
         String[] fields = text.split(this.delimiter);
         
         if(fields.length < 6){
@@ -35,11 +32,9 @@ public class WeightMessage extends Message{
             System.out.println("ERROR: Wrong type. Not a WeightMessage.");
             return;
         }
-        this.type = MsgType.WEIGHT;
-        this.srcIP = fields[1];
-        this.srcPort = Integer.parseInt(fields[2]);
-        this.dstIP = fields[3];
-        this.dstPort = Integer.parseInt(fields[4]);
+        
+        this.srcAdd = new Address(fields[1], Integer.parseInt(fields[2]));
+        this.dstAdd = new Address(fields[3], Integer.parseInt(fields[4]));        
         this.weight = Integer.parseInt(fields[5]);
     }
     
@@ -52,8 +47,8 @@ public class WeightMessage extends Message{
      */
     @Override
     public String toString(){
-        String output = type +delimiter+ srcIP +delimiter+ srcPort 
-                +delimiter+ dstIP +delimiter+ dstPort 
+        String output = type +delimiter+ srcAdd.ip +delimiter+ srcAdd.port 
+                +delimiter+ dstAdd.ip +delimiter+ dstAdd.port 
                 +delimiter+ weight;
         return output;
     }

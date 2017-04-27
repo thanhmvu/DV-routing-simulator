@@ -1,28 +1,50 @@
-
 package dvroutingsimulator;
 
 /**
  *
  * @author thanhvu
  */
-enum MsgType { DV, WEIGHT, CONTENT }
+enum MsgType {
+    DV, WEIGHT, CONTENT
+}
 
 public class Message {
-    
-    protected String srcIP;
-    protected String dstIP;
-    protected int srcPort;
-    protected int dstPort;
+
+    protected Address srcAdd;
+    protected Address dstAdd;
     protected MsgType type;
     protected final String delimiter = "<<>>";
-   
-    public String getSrcIP(){ return srcIP;}
     
-    public String getDstIP(){ return dstIP;}
+    protected Message (MsgType msgType, String srcip, int srcport, String dstip, int dstport){
+        this.type = msgType;
+        this.srcAdd = new Address(srcip, srcport);
+        this.dstAdd = new Address(dstip, dstport);
+    }
+    public Address getSrcAddress() {
+        return srcAdd;
+    }
     
-    public int getSrcPort(){ return srcPort;}
-    
-    public int getDstPort(){ return dstPort;}
-    
-    public MsgType getType(){ return type;}
+    public Address getDstAddress() {
+        return dstAdd;
+    }
+
+    public String getSrcIP() {
+        return srcAdd.ip;
+    }
+
+    public String getDstIP() {
+        return dstAdd.ip;
+    }
+
+    public int getSrcPort() {
+        return srcAdd.port;
+    }
+
+    public int getDstPort() {
+        return dstAdd.port;
+    }
+
+    public MsgType getType() {
+        return type;
+    }
 }

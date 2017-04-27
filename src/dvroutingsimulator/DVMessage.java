@@ -9,11 +9,7 @@ public class DVMessage extends Message{
     DistanceVector dv;
     
     public DVMessage(String srcip, int srcport, String dstip, int dstport, DistanceVector distVect){
-        this.type = MsgType.DV;
-        this.srcIP = srcip;
-        this.srcPort = srcport;
-        this.dstIP = dstip;
-        this.dstPort = dstport;
+        super(MsgType.DV, srcip, srcport, dstip, dstport);
         this.dv = distVect;
     }
     /**
@@ -24,6 +20,7 @@ public class DVMessage extends Message{
      * @param text
      */
     public DVMessage(String text){
+        this("", 0, "", 0, null);
         String[] fields = text.split(this.delimiter);
         
         if(fields.length < 6){
@@ -35,11 +32,8 @@ public class DVMessage extends Message{
             System.out.println("ERROR: Wrong type. Not a DVMessage.");
             return;
         }
-        this.type = MsgType.DV;
-        this.srcIP = fields[1];
-        this.srcPort = Integer.parseInt(fields[2]);
-        this.dstIP = fields[3];
-        this.dstPort = Integer.parseInt(fields[4]);
+        this.srcAdd = new Address(fields[1], Integer.parseInt(fields[2]));
+        this.dstAdd = new Address(fields[3], Integer.parseInt(fields[4]));  
         this.dv = new DistanceVector(fields[5]);
     }
     
@@ -52,8 +46,8 @@ public class DVMessage extends Message{
      */
     @Override
     public String toString(){
-        String output = type +delimiter+ srcIP +delimiter+ srcPort 
-                +delimiter+ dstIP +delimiter+ dstPort 
+        String output = type +delimiter+ srcAdd.ip +delimiter+ srcAdd.port 
+                +delimiter+ dstAdd.ip +delimiter+ dstAdd.port 
                 +delimiter+ dv.toString();
         return output;
     }

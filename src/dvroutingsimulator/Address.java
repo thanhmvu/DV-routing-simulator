@@ -6,8 +6,8 @@ package dvroutingsimulator;
  * @author thanhvu
  */
 public class Address {
-    public String ip;
-    public int port;
+    String ip;
+    int port;
         
     Address(String i, int p){
         ip = i;

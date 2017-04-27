@@ -1,11 +1,15 @@
 
 package dvroutingsimulator;
 
+import java.util.HashMap;
+
 /**
- *
+ * Create a distance vector for the DV Routing Simulator
  * @author thanhvu
  */
 public class DistanceVector {
+    
+    private HashMap<Address, Integer> dv;
     
     public DistanceVector(){
     
