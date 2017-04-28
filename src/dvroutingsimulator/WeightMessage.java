@@ -6,7 +6,7 @@ package dvroutingsimulator;
  */
 public class WeightMessage extends Message {
 
-    int weight;
+    private int weight;
 
     public WeightMessage(String srcip, int srcport, String dstip, int dstport, int w) {
         super(MsgType.WEIGHT, srcip, srcport, dstip, dstport);
