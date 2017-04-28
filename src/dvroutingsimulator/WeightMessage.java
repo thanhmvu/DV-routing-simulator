@@ -1,58 +1,52 @@
-
 package dvroutingsimulator;
 
 /**
  *
  * @author thanhvu
  */
-public class WeightMessage extends Message{
+public class WeightMessage extends Message {
+
     int weight;
-    
-    public WeightMessage(String srcip, int srcport, String dstip, int dstport, int w){
+
+    public WeightMessage(String srcip, int srcport, String dstip, int dstport, int w) {
         super(MsgType.WEIGHT, srcip, srcport, dstip, dstport);
         this.weight = w;
     }
+
     /**
      * Constructor that parses a string representation of a WeightMessage
-     * Message's format: 
-     * "type[delimiter]srcIP[delimiter]srcPort[delimiter]
+     * Message's format: "type[delimiter]srcIP[delimiter]srcPort[delimiter]
      * dstIP[delimiter]dstPort[delimiter]weight"
-     * @param text the text from which 
+     *
+     * @param text the text from which
      */
-    public WeightMessage(String text){
-        this("", 0, "", 0, 0);
-        String[] fields = text.split(this.delimiter);
-        
-        if(fields.length < 6){
-            System.out.println("ERROR: Wrong format. Not enough fields.");
+    public WeightMessage(String text) {
+        super(text);
+        if (this.type != MsgType.WEIGHT) {
+            System.out.println("ERROR: Not a WEIGHT Type.");
             return;
         }
-        
-        if(MsgType.WEIGHT != MsgType.valueOf(fields[0])){
-            System.out.println("ERROR: Wrong type. Not a WeightMessage.");
-            return;
-        }
-        
-        this.srcAdd = new Address(fields[1], Integer.parseInt(fields[2]));
-        this.dstAdd = new Address(fields[3], Integer.parseInt(fields[4]));        
+        String[] fields = text.split(this.DLM);
         this.weight = Integer.parseInt(fields[5]);
     }
-    
+
     /**
-     * Output a string representation of a WeightMessage 
-     * using the following format: 
-     * "type[delimiter]srcIP[delimiter]srcPort[delimiter]
+     * Output a string representation of a WeightMessage using the following
+     * format: "type[delimiter]srcIP[delimiter]srcPort[delimiter]
      * dstIP[delimiter]dstPort[delimiter]weight"
-     * @return 
+     *
+     * @return
      */
     @Override
-    public String toString(){
-        String output = type +delimiter+ srcAdd.ip +delimiter+ srcAdd.port 
-                +delimiter+ dstAdd.ip +delimiter+ dstAdd.port 
-                +delimiter+ weight;
+    public String toString() {
+        String output = type + DLM + srcAdd.ip + DLM + srcAdd.port
+                + DLM + dstAdd.ip + DLM + dstAdd.port
+                + DLM + weight;
         return output;
     }
-    
-    public int getWeight(){ return weight;}
-    
+
+    public int getWeight() {
+        return weight;
+    }
+
 }
