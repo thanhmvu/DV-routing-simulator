@@ -3,10 +3,13 @@ package dvroutingsimulator;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.DatagramSocketImpl;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Contains all methods to simulate a router, include all algorithms and
@@ -16,11 +19,15 @@ import java.util.HashMap;
  */
 public class Router {
 
+    private Address address;
     private HashMap<Address, Address> forwardTable;
     private HashMap<Address, DistanceVector> neighborsDV;
     private HashMap<Address, Integer> linkWeights;
     private DistanceVector dv;
-    private Address address;
+
+    private RouterListener rl;
+    private boolean running;
+    private DatagramSocket listeningSocket;
 
     /**
      * Create a router
@@ -34,6 +41,16 @@ public class Router {
         neighborsDV = new HashMap<>();
         linkWeights = new HashMap<>();
         dv = new DistanceVector();
+
+        try {
+            listeningSocket = new DatagramSocket(port);
+            running = true;
+            rl = new RouterListener(this);
+            rl.start();
+        } catch (SocketException ex) {
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
     /**
@@ -75,6 +92,8 @@ public class Router {
         }
     }
 
+    
+
     /**
      * Forward a content message to the right destination
      *
@@ -107,10 +126,9 @@ public class Router {
      * false
      */
     public boolean runDVAlgorithm() {
-        DistanceVector tempDv = new DistanceVector();
+        boolean isChanged = false;
         forwardTable = new HashMap<>(); //empty forward table
 
-        //run dv algorithm
         // iterate through all neighbors' distance vector
         for (Address nAdd : neighborsDV.keySet()) {
             DistanceVector nDV = neighborsDV.get(nAdd);
@@ -118,23 +136,17 @@ public class Router {
             //iterate though all the destination addresses in a neighbor vector
             for (Address destAdd : nDV.addressSet()) {
                 int newDist = linkWeights.get(nAdd) + nDV.getDistance(destAdd);
-                Integer currDist = tempDv.getDistance(destAdd);
+                Integer currDist = dv.getDistance(destAdd);
 
-                //if neighbor's distance 
+                //if link weight to neighbor + neighbor's distance to dest < current distance, update
                 if (currDist == null || currDist > newDist) {
-                    tempDv.updateDistance(destAdd, newDist);
+                    isChanged = true;
+                    dv.updateDistance(destAdd, newDist);
                     forwardTable.put(destAdd, nAdd);
                 }
             }
-
         }
-
-        // check if there is a change in distance vector, if yes, return true and update things
-        if (!tempDv.equals(dv)) {
-            dv = tempDv;
-            return true;
-        }
-        return false;
+        return isChanged;
 
     }
 
@@ -148,6 +160,14 @@ public class Router {
             DVMessage dvMess = new DVMessage(address, neighborAdd, dv);
             sendMessage(dvMess, neighborAdd);
         }
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public Address getAddress() {
+        return address;
     }
 
 }

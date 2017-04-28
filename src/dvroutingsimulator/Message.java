@@ -49,7 +49,22 @@ public class Message {
         return dstAdd;
     }
 
-    public MsgType getType() {
+    MsgType getType() {
         return type;
+    }
+    
+    public static MsgType getType(String text) {
+        String[] fields = text.split(DLM);
+        
+        if (fields.length < 6) {
+            return null;
+        }
+
+        try {
+            return MsgType.valueOf(fields[0]);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+
     }
 }
