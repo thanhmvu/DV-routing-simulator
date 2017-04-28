@@ -35,7 +35,7 @@ public class Router {
         neighborsDV = new HashMap<>();
         linkWeights = new HashMap<>();
         dv = new DistanceVector();
-        
+
         // start all thread
         this.startAllThreads();
 
@@ -120,28 +120,35 @@ public class Router {
     /**
      * Update weight between 2 links
      *
-     * @param nAdd
-     * @param weight
+     * @param nAdd Neighbor address
+     * @param weight The weight of the new link
+     * @return true if is updated, false if no change
      */
-    public void updateWeight(Address nAdd, int weight) {
-        linkWeights.put(nAdd, weight);
+    public boolean updateWeight(Address nAdd, int weight) {
+        int currWeight = linkWeights.get(nAdd);
+        if (currWeight != weight) {
+            linkWeights.put(nAdd, weight);
+            return true;
+        }
+        return false;
     }
 
     /**
-     * Update a distance vector of neighbor router
+     * Update a distance vector of neighbor router. If the update is different,
+     * run distance vector algorithm
      *
-     * @param nAdd
-     * @param nDV
+     * @param nAdd Neighbor address
+     * @param nDV Neighbor distance vector
+     * @return true if DV is changed and updated
      * @throws java.io.IOException
      */
-    public void updateDV(Address nAdd, DistanceVector nDV) throws IOException {
+    public boolean updateDV(Address nAdd, DistanceVector nDV) throws IOException {
         DistanceVector currDV = neighborsDV.get(nAdd);
         if (currDV == null || !currDV.equals(nDV)) {
             neighborsDV.put(nAdd, nDV);
-            if (runDVAlgorithm()) {
-                advertiseDV();
-            }
+            return true;
         }
+        return false;
     }
 
     /**
@@ -196,7 +203,7 @@ public class Router {
     public boolean isRunning() {
         return running;
     }
-    
+
     /**
      * Start all the threads in the router
      */

@@ -70,11 +70,20 @@ public class RouterListener extends Thread {
                 return;
             case DV:
                 DVMessage dMsg = new DVMessage(protocol);
-                r.updateDV(dMsg.getSrcAddress(), dMsg.getDistVect());
+                if (r.updateDV(dMsg.getSrcAddress(), dMsg.getDistVect())) {
+                    if (r.runDVAlgorithm()) {
+                        r.advertiseDV();
+                    }
+                }
                 return;
+
             case WEIGHT:
                 WeightMessage wMsg = new WeightMessage(protocol);
-                r.updateWeight(wMsg.getSrcAddress(), wMsg.getWeight());
+                if (r.updateWeight(wMsg.getSrcAddress(), wMsg.getWeight())) {
+                    if (r.runDVAlgorithm()) {
+                        r.advertiseDV();
+                    }
+                }
                 break;
         }
     }
