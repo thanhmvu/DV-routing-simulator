@@ -3,13 +3,8 @@ package dvroutingsimulator;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.DatagramSocketImpl;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Contains all methods to simulate a router, include all algorithms and
@@ -19,7 +14,7 @@ import java.util.logging.Logger;
  */
 public class Router {
 
-    private Address address;
+    private final Address address;
     private HashMap<Address, Address> forwardTable;
     private HashMap<Address, DistanceVector> neighborsDV;
     private HashMap<Address, Integer> linkWeights;
@@ -27,7 +22,6 @@ public class Router {
 
     private RouterListener rl;
     private boolean running;
-    private DatagramSocket listeningSocket;
 
     /**
      * Create a router
@@ -41,16 +35,19 @@ public class Router {
         neighborsDV = new HashMap<>();
         linkWeights = new HashMap<>();
         dv = new DistanceVector();
+        
+        // start all thread
+        this.startAllThreads();
 
-        try {
-            listeningSocket = new DatagramSocket(port);
-            running = true;
-            rl = new RouterListener(this);
-            rl.start();
-        } catch (SocketException ex) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    }
 
+    /**
+     * Get the address of the router
+     *
+     * @return The address of the router
+     */
+    public Address getAddress() {
+        return address;
     }
 
     /**
@@ -92,15 +89,12 @@ public class Router {
         }
     }
 
-    
-
     /**
      * Forward a content message to the right destination
      *
      * @param m The message to be forwarded
-     * @throws Exception
      */
-    public void forwardMessage(ContentMessage m) throws Exception {
+    public void forwardMessage(ContentMessage m) throws IOException {
 
         // Look up the dest IP in the forwarding table
         Address nextHop = forwardTable.get(m.getDstAddress());
@@ -108,15 +102,46 @@ public class Router {
 
         // Foward message using writeToOuputStream
         sendMessage(m, nextHop);
+        System.out.println("Message " + m.getMessage()
+                + " from " + m.getSrcAddress().toString()
+                + " to " + m.getDstAddress().toString()
+                + " forwarded to " + nextHop.toString());
+    }
+
+    /**
+     * Action taken when router receive a content message destined to itself
+     *
+     * @param m The message received
+     */
+    public void receiveMessage(ContentMessage m) {
+        System.out.println("Message " + m.getMessage() + " received from " + m.getSrcAddress().toString());
     }
 
     /**
      * Update weight between 2 links
      *
-     * @param wm A weight message
+     * @param nAdd
+     * @param weight
      */
-    public void updateWeight(WeightMessage wm) {
-        linkWeights.put(wm.getSrcAddress(), wm.getWeight());
+    public void updateWeight(Address nAdd, int weight) {
+        linkWeights.put(nAdd, weight);
+    }
+
+    /**
+     * Update a distance vector of neighbor router
+     *
+     * @param nAdd
+     * @param nDV
+     * @throws java.io.IOException
+     */
+    public void updateDV(Address nAdd, DistanceVector nDV) throws IOException {
+        DistanceVector currDV = neighborsDV.get(nAdd);
+        if (currDV == null || !currDV.equals(nDV)) {
+            neighborsDV.put(nAdd, nDV);
+            if (runDVAlgorithm()) {
+                advertiseDV();
+            }
+        }
     }
 
     /**
@@ -162,12 +187,30 @@ public class Router {
         }
     }
 
+//======================THREAD CONTROL=====================================
+    /**
+     * Check if router is still running all its thread
+     *
+     * @return true if router is still running, false if not
+     */
     public boolean isRunning() {
         return running;
     }
+    
+    /**
+     * Start all the threads in the router
+     */
+    public final void startAllThreads() {
+        running = true;
+        rl = new RouterListener(this);
+        rl.start();
+    }
 
-    public Address getAddress() {
-        return address;
+    /**
+     * Stop all threads from running
+     */
+    public void stop() {
+        running = false;
     }
 
 }

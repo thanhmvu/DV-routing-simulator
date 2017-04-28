@@ -14,37 +14,68 @@ import java.util.logging.Logger;
  */
 public class RouterListener extends Thread {
 
-    private Router r;
+    private final Router r;
 
     /**
      * Create a new router listener
      *
-     * @param router
+     * @param router The router on which the thread runs
      */
     RouterListener(Router router) {
         super();
         this.r = router;
     }
 
+    /**
+     * Run the thread
+     */
     @Override
     public void run() {
         try {
-            DatagramSocket ls = new DatagramSocket(r.getAddress().port);
+            DatagramSocket listeningSocket = new DatagramSocket(r.getAddress().port);
             int maxSize = 1024;
             byte[] receiveData = new byte[maxSize];
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
             while (r.isRunning()) {
-                ls.receive(receivePacket);
+                listeningSocket.receive(receivePacket);
                 String protocol = new String(receivePacket.getData());
-                MsgType msgType = Message.getType(protocol);
-                
-                //ADD MORE 
-                
+                this.handleProtocol(protocol);
+
             }
         } catch (SocketException ex) {
             Logger.getLogger(RouterListener.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(RouterListener.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * Handle the protocol once it's received, convert to a message, and perform
+     * appropriate action
+     *
+     * @param protocol The protocol received
+     */
+    private void handleProtocol(String protocol) throws IOException {
+        MsgType msgType = Message.getType(protocol);
+        switch (msgType) {
+            case CONTENT:
+                ContentMessage cMsg = new ContentMessage(protocol);
+
+                //if router is the recipient
+                if (cMsg.getDstAddress() == r.getAddress()) {
+                    r.receiveMessage(cMsg);
+                } else { //else if message should be forwarded
+                    r.forwardMessage(cMsg);
+                }
+                return;
+            case DV:
+                DVMessage dMsg = new DVMessage(protocol);
+                r.updateDV(dMsg.getSrcAddress(), dMsg.getDistVect());
+                return;
+            case WEIGHT:
+                WeightMessage wMsg = new WeightMessage(protocol);
+                r.updateWeight(wMsg.getSrcAddress(), wMsg.getWeight());
+                break;
         }
     }
 
