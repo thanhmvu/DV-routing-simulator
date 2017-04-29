@@ -20,8 +20,9 @@ public class DVRoutingSimulator {
     /**
      * Create a new simulator
      * @param filePath The path 
+     * @param reverse 
      */
-    public DVRoutingSimulator(String filePath) {
+    public DVRoutingSimulator(String filePath, boolean reverse) {
         Path neighborsFilePath = Paths.get(filePath);
         try {
             List<String> allLines = Files.readAllLines(neighborsFilePath);
@@ -31,7 +32,7 @@ public class DVRoutingSimulator {
             String[] myFields = myAddress.split(" ");
             String myIp = myFields[0];
             int myPort = Integer.parseInt(myFields[1]);
-            r = new Router(myIp, myPort);
+            r = new Router(myIp, myPort, reverse);
             
             //iterate through neighbors
             for (int i = 1; i < allLines.size(); i++) {
@@ -44,13 +45,44 @@ public class DVRoutingSimulator {
         } catch (IOException ex) {
             Logger.getLogger(DVRoutingSimulator.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+    }
+    
+    /**
+     * Run the simulation
+     */
+    public void run() {
+        if (r != null) r.startAllThreads();
     }
 
     /**
-     * @param args the command line arguments
+     * Run the program
+     * @param args Command line argument, format "[-reverse] filePath.txt"
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        if (args.length < 1) {
+            System.out.println("Need at least 1 argument. Format: [-reverse] filePath.txt");
+            return;
+        }
+        
+        boolean reverse = false;
+        String path = null;
+        for (String arg: args) {
+            if (arg.equals("-reverse")) {
+                reverse = true;
+            } else {
+                path = arg;
+            }
+        }
+        
+        if (path == null) {
+            System.out.println("Need to insert a filePath. Format: [-reverse] filePath.txt");
+            return;
+        }
+        
+        DVRoutingSimulator sim = new DVRoutingSimulator(path, reverse);
+        sim.run();
+        
     }
     
 }

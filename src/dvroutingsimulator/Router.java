@@ -21,6 +21,7 @@ public class Router {
 
     private RouterListener rl;
     private boolean running;
+    private boolean reverse;
 
     /**
      * Create a router
@@ -28,14 +29,12 @@ public class Router {
      * @param ip
      * @param port
      */
-    public Router(String ip, int port) {
+    public Router(String ip, int port, boolean reverse) {
         address = new Address(ip, port);
+        this.reverse = reverse;
         forwardTable = new HashMap<>();
         neighbors = new HashMap<>();
         dv = new DistanceVector();
-
-        // start all thread
-        this.startAllThreads();
 
     }
 
@@ -47,7 +46,7 @@ public class Router {
     public Address getAddress() {
         return address;
     }
-    
+
     /**
      * Add a new neighbor into the router. Link weights map is updated, distance
      * vector is updated. DV Algorithm is run to determine forwarding table
@@ -64,30 +63,30 @@ public class Router {
             advertiseDV();
         }
     }
-    
+
     /**
      * Drop a neighbor from the router
+     *
      * @param a The address of the neighbor
      */
     public void dropNeighbor(Address a) {
         neighbors.remove(a);
-        
+
     }
 
 //======================COMMUNICATION METHODS=====================================
-
     /**
      * Send a message directly to a specific router
      *
      * @param m Message
-     * @param nextHop The next destination that the message is sent to
+     * @param neighbor The next hop neighbor
      * @throws java.net.SocketException
      * @throws java.net.UnknownHostException
      */
-    public void sendMessage(Message m, Address nextHop) throws IOException {
+    public void sendMessage(Message m, Neighbor neighbor) throws IOException {
         try (DatagramSocket socket = new DatagramSocket()) {
-            InetAddress dstIP = InetAddress.getByName(nextHop.ip);
-            int dstPort = nextHop.port;
+            InetAddress dstIP = InetAddress.getByName(neighbor.getAddress().ip);
+            int dstPort = neighbor.getAddress().port;
             //int maxDataSize = 1024; -- REDUNDANT
 
             // Put message in a packet
@@ -107,15 +106,15 @@ public class Router {
     public void forwardMessage(ContentMessage m) throws IOException {
 
         // Look up the dest IP in the forwarding table
-        Neighbor nextHop = forwardTable.get(m.getDstAddress());
+        Neighbor nextHopNeighbor = forwardTable.get(m.getDstAddress());
         //WHAT IF NEXTHOP == NULL? (NO DESTINATION)
 
         // Foward message using writeToOuputStream
-        sendMessage(m, nextHop.getAddress());
+        sendMessage(m, nextHopNeighbor);
         System.out.println("Message " + m.getMessage()
                 + " from " + m.getSrcAddress().toString()
                 + " to " + m.getDstAddress().toString()
-                + " forwarded to " + nextHop.toString());
+                + " forwarded to " + nextHopNeighbor.toString());
     }
 
     /**
@@ -135,6 +134,21 @@ public class Router {
      * false
      */
     public boolean runDVAlgorithm() {
+
+        if (!reverse) {
+            return this.runDVAlgorithmNoReverse();
+        } else {
+            return false;
+        }
+
+    }
+
+    /**
+     * DV Algorithm without poison reverse
+     *
+     * @return true if distance vector was updated, false if not
+     */
+    private boolean runDVAlgorithmNoReverse() {
         boolean isChanged = false;
         forwardTable = new HashMap<>(); //empty forward table
 
@@ -157,7 +171,36 @@ public class Router {
             }
         }
         return isChanged;
+    }
 
+    /**
+     * DV Algorithm without poison reverse
+     *
+     * @return true if distance vector was updated, false if not
+     */
+    private boolean runDVAlgorithmWithReverse() {
+        boolean isChanged = false;
+        forwardTable = new HashMap<>(); //empty forward table
+
+        // iterate through all neighbors' distance vector
+        for (Address nAdd : neighbors.keySet()) {
+            Neighbor n = neighbors.get(nAdd);
+            DistanceVector nDV = n.getDistVector();
+
+            //iterate though all the destination addresses in a neighbor vector
+            for (Address destAdd : nDV.addressSet()) {
+                int newDist = n.getLinkWeight() + nDV.getDistance(destAdd);
+                Integer currDist = dv.getDistance(destAdd);
+
+                //if link weight to neighbor + neighbor's distance to dest < current distance, update
+                if (currDist == null || currDist > newDist) {
+                    isChanged = true;
+                    dv.updateDistance(destAdd, newDist);
+                    forwardTable.put(destAdd, n);
+                }
+            }
+        }
+        return isChanged;
     }
 
     /**
@@ -204,7 +247,7 @@ public class Router {
     public void advertiseDV() throws IOException {
         for (Address nAdd : neighbors.keySet()) {
             DVMessage dvMess = new DVMessage(address, nAdd, dv);
-            sendMessage(dvMess, nAdd);
+            sendMessage(dvMess, neighbors.get(nAdd));
         }
     }
 
