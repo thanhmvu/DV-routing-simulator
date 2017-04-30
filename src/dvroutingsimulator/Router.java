@@ -20,6 +20,7 @@ public class Router {
     private DistanceVector dv;
 
     private RouterListener rl;
+    private AutoUpdater au;
     private boolean running;
     private boolean reverse;
 
@@ -35,7 +36,8 @@ public class Router {
         forwardTable = new HashMap<>();
         neighbors = new HashMap<>();
         dv = new DistanceVector();
-
+        rl = new RouterListener(this);
+        au = new AutoUpdater(this);
     }
 
     /**
@@ -266,8 +268,8 @@ public class Router {
      */
     public final void startAllThreads() {
         running = true;
-        rl = new RouterListener(this);
         rl.start();
+        au.run();
     }
 
     /**
@@ -275,6 +277,7 @@ public class Router {
      */
     public void stop() {
         running = false;
+        au.stop();
     }
 
 }
