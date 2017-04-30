@@ -114,7 +114,10 @@ public class Router {
 
             // Look up the dest IP in the forwarding table
             Neighbor nextHopNeighbor = forwardTable.get(m.getDstAddress());
-            //WHAT IF NEXTHOP == NULL? (NO DESTINATION)
+            if(nextHopNeighbor == null){
+                System.out.println(m.getDstAddress().toString() + "is not reachable");
+                return;
+            }
 
             // Foward message using writeToOuputStream
             m.reduceTimeTolive();
