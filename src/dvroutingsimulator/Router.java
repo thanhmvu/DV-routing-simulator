@@ -21,6 +21,7 @@ public class Router {
 
     private RouterListener rl;
     private AutoUpdater au;
+    private ConsoleReader cr;
     private boolean running;
     private boolean reverse;
 
@@ -38,6 +39,7 @@ public class Router {
         dv = new DistanceVector();
         rl = new RouterListener(this);
         au = new AutoUpdater(this);
+        cr = new ConsoleReader(this);
     }
 
     /**
@@ -85,11 +87,10 @@ public class Router {
      * @throws java.net.SocketException
      * @throws java.net.UnknownHostException
      */
-    public void sendMessage(Message m, Neighbor neighbor) throws IOException {
+    private void sendMessage(Message m, Neighbor neighbor) throws IOException {
         try (DatagramSocket socket = new DatagramSocket()) {
             InetAddress dstIP = InetAddress.getByName(neighbor.getAddress().ip);
             int dstPort = neighbor.getAddress().port;
-            //int maxDataSize = 1024; -- REDUNDANT
 
             // Put message in a packet
             byte[] sendData = m.toString().getBytes();
@@ -105,8 +106,8 @@ public class Router {
      *
      * @param m The message to be forwarded
      */
-    public void forwardMessage(ContentMessage m) throws IOException {
-
+    public void forwardMessage(ContentMessage m) throws IOException 
+    {
         // Look up the dest IP in the forwarding table
         Neighbor nextHopNeighbor = forwardTable.get(m.getDstAddress());
         //WHAT IF NEXTHOP == NULL? (NO DESTINATION)
@@ -214,6 +215,7 @@ public class Router {
      */
     public boolean updateWeight(Address nAdd, int weight) {
         Neighbor n = neighbors.get(nAdd);
+        // WHAT IF nAdd IS NOT A NEIGHBOR, n == null?
         int currWeight = n.getLinkWeight();
         if (currWeight != weight) {
             n.setLinkWeight(weight);
@@ -255,8 +257,7 @@ public class Router {
 
 //======================THREAD CONTROL=====================================
     /**
-     * Check if router is still running all its thread
-     *
+     * Print
      * @return true if router is still running, false if not
      */
     public boolean isRunning() {
@@ -269,15 +270,41 @@ public class Router {
     public final void startAllThreads() {
         running = true;
         rl.start();
-        au.run();
+        
+        //Starting AutoUpdater thread
+        Thread auThread = new Thread(au);
+        auThread.start();
+        
+        //Starting ConsoleReader thread
+        Thread crThread = new Thread(cr);
+        crThread.start();
     }
 
     /**
      * Stop all threads from running
      */
     public void stop() {
+        // IS THIS THE CORRECT WAY TO STOP THE THREATS?
         running = false;
         au.stop();
+        cr.stop();
     }
-
+    
+//======================OTHER METHODS=====================================
+    /**
+     * Print the distance vector
+     */
+    public void printDistVect() {
+        System.out.println("This router: "+dv.toString());
+    }
+    
+    /**
+     * Print the neighbor's distance vectors
+     */
+    public void printNeighborDV() {
+        for(Neighbor nei: neighbors.values()){
+            System.out.println(nei.getAddress().toString() 
+                    +": "+ nei.getDistVector().toString());
+        }
+    }
 }
