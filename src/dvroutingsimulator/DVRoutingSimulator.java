@@ -61,7 +61,7 @@ public class DVRoutingSimulator {
      */
     public static void main(String[] args) {
         if (args.length < 1) {
-            System.out.println("Need at least 1 argument. Format: [-reverse] filePath.txt");
+            System.out.println("Need at least 1 argument. Format: [-reverse] [filepath]");
             return;
         }
         
@@ -76,7 +76,7 @@ public class DVRoutingSimulator {
         }
         
         if (path == null) {
-            System.out.println("Need to insert a filePath. Format: [-reverse] filePath.txt");
+            System.out.println("Need to insert a filePath. Format: [-reverse] [filepath]");
             return;
         }
         
