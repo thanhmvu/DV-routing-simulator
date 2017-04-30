@@ -39,9 +39,7 @@ public class Router {
         forwardTable = new HashMap<>();
         neighbors = new HashMap<>();
         dv = new DistanceVector();
-        rl = new RouterListener(this);
-        au = new AutoUpdater(this);
-        cr = new ConsoleReader(this);
+
         maxTimeToLive = 15;
     }
 
@@ -104,7 +102,7 @@ public class Router {
             socket.send(sendPacket);
         }
     }
-    
+
     /**
      * Forward a content message to the right destination
      *
@@ -116,7 +114,7 @@ public class Router {
 
             // Look up the dest IP in the forwarding table
             Neighbor nextHopNeighbor = forwardTable.get(m.getDstAddress());
-            if(nextHopNeighbor == null){
+            if (nextHopNeighbor == null) {
                 System.out.println(m.getDstAddress().toString() + "is not reachable");
                 return;
             }
@@ -136,7 +134,7 @@ public class Router {
                     + " died (timeToLive <= 0)\nmsg(" + m.getMessage() + ")");
         }
     }
-    
+
     /**
      * Send a content message to a specific router
      *
@@ -145,11 +143,11 @@ public class Router {
      * @param msg the message to send
      */
     public void sendContentMsg(String dstIP, int dstPort, String msg) throws IOException {
-        ContentMessage cm = new ContentMessage(this.address.ip, this.address.port, 
+        ContentMessage cm = new ContentMessage(this.address.ip, this.address.port,
                 dstIP, dstPort, this.maxTimeToLive, msg);
         this.forwardMessage(cm);
     }
-    
+
     /**
      * Send a weight message directly to a neighbor
      *
@@ -161,9 +159,9 @@ public class Router {
         // Create the weight message
         WeightMessage wm = new WeightMessage(
                 this.address.ip, this.address.port, dstIP, dstPort, newW);
-        
+
         // Send the message directly to the neighbor
-        this.sendMessage(wm,neighbors.get(new Address(dstIP, dstPort)));
+        this.sendMessage(wm, neighbors.get(new Address(dstIP, dstPort)));
     }
 
     /**
@@ -272,6 +270,7 @@ public class Router {
 //======================THREAD CONTROL=====================================
     /**
      * Print
+     *
      * @return true if router is still running, false if not
      */
     public boolean isRunning() {
@@ -283,13 +282,19 @@ public class Router {
      */
     public final void startAllThreads() {
         running = true;
-        rl.start();
-        
+
+        //start RouterListener thread
+        rl = new RouterListener(this);
+        Thread rlThread = new Thread(rl);
+        rlThread.start();
+
         //Starting AutoUpdater thread
+        au = new AutoUpdater(this);
         Thread auThread = new Thread(au);
         auThread.start();
-        
+
         //Starting ConsoleReader thread
+        cr = new ConsoleReader(this);
         Thread crThread = new Thread(cr);
         crThread.start();
     }
@@ -303,22 +308,22 @@ public class Router {
         au.stop();
         cr.stop();
     }
-    
+
 //======================OTHER METHODS=====================================
     /**
      * Print the distance vector
      */
     public void printDistVect() {
-        System.out.println("This router: "+dv.toString());
+        System.out.println("This router: " + dv.toString());
     }
-    
+
     /**
      * Print the neighbor's distance vectors
      */
     public void printNeighborDV() {
-        for(Neighbor nei: neighbors.values()){
-            System.out.println(nei.getAddress().toString() 
-                    +": "+ nei.getDistVector().toString());
+        for (Neighbor nei : neighbors.values()) {
+            System.out.println(nei.getAddress().toString()
+                    + ": " + nei.getDistVector().toString());
         }
     }
 }

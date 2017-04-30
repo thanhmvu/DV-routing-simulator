@@ -12,7 +12,7 @@ import java.util.logging.Logger;
  *
  * @author hongha912
  */
-public class RouterListener extends Thread {
+public class RouterListener implements Runnable {
 
     private final Router r;
 
