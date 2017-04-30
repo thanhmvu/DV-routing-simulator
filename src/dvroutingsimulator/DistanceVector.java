@@ -101,4 +101,8 @@ public class DistanceVector {
     public Set<Address> addressSet() {
         return dvMap.keySet();
     }
+
+    void removeDistance(Address destAdd) {
+        dvMap.remove(destAdd);
+    }
 }

@@ -17,19 +17,20 @@ public class Router {
     private final Address address;
     private HashMap<Address, Neighbor> neighbors;
     private HashMap<Address, Neighbor> forwardTable;
-    private DistanceVector dv;
+    private final DistanceVector dv;
 
     private RouterListener rl;
     private AutoUpdater au;
     private ConsoleReader cr;
     private boolean running;
-    private boolean reverse;
+    private final boolean reverse;
 
     /**
      * Create a router
      *
-     * @param ip
-     * @param port
+     * @param ip The IP of the router
+     * @param port The port of the router
+     * @param reverse true if poison reverse is activated, false if not
      */
     public Router(String ip, int port, boolean reverse) {
         address = new Address(ip, port);
@@ -58,6 +59,7 @@ public class Router {
      * @param ip IP of the neighbor
      * @param port Port number of the neighbor
      * @param weight The weight of the neighbor
+     * @throws java.io.IOException Happens when DV is advertised
      */
     public void addNeighbor(String ip, int port, int weight) throws IOException {
         Address neighborAddress = new Address(ip, port);
@@ -106,18 +108,28 @@ public class Router {
      *
      * @param m The message to be forwarded
      */
-    public void forwardMessage(ContentMessage m) throws IOException 
-    {
-        // Look up the dest IP in the forwarding table
-        Neighbor nextHopNeighbor = forwardTable.get(m.getDstAddress());
-        //WHAT IF NEXTHOP == NULL? (NO DESTINATION)
+    public void forwardMessage(ContentMessage m) throws IOException {
+        //check time to live
+        if (m.getTimeToLive() > 0) {
 
-        // Foward message using writeToOuputStream
-        sendMessage(m, nextHopNeighbor);
-        System.out.println("Message " + m.getMessage()
-                + " from " + m.getSrcAddress().toString()
-                + " to " + m.getDstAddress().toString()
-                + " forwarded to " + nextHopNeighbor.toString());
+            // Look up the dest IP in the forwarding table
+            Neighbor nextHopNeighbor = forwardTable.get(m.getDstAddress());
+            //WHAT IF NEXTHOP == NULL? (NO DESTINATION)
+
+            // Foward message using writeToOuputStream
+            m.reduceTimeTolive();
+            sendMessage(m, nextHopNeighbor);
+            System.out.println("Message msg"
+                    + " from " + m.getSrcAddress().toString()
+                    + " to " + m.getDstAddress().toString()
+                    + " forwarded to " + nextHopNeighbor.toString()
+                    + "\nmsg(" + m.getMessage() + ")");
+        } else {
+            System.out.println("Message msg"
+                    + " from " + m.getSrcAddress().toString()
+                    + " to " + m.getDstAddress().toString()
+                    + " died (timeToLive <= 0)\nmsg(" + m.getMessage() + ")");
+        }
     }
 
     /**
@@ -126,7 +138,8 @@ public class Router {
      * @param m The message received
      */
     public void receiveMessage(ContentMessage m) {
-        System.out.println("Message " + m.getMessage() + " received from " + m.getSrcAddress().toString());
+        System.out.println("Message msg received from " + m.getSrcAddress().toString()
+                + "\nmsg(" + m.getMessage() + ")");
     }
 
 //======================DISTANCE VECTOR METHODS=====================================
@@ -137,21 +150,6 @@ public class Router {
      * false
      */
     public boolean runDVAlgorithm() {
-
-        if (!reverse) {
-            return this.runDVAlgorithmNoReverse();
-        } else {
-            return false;
-        }
-
-    }
-
-    /**
-     * DV Algorithm without poison reverse
-     *
-     * @return true if distance vector was updated, false if not
-     */
-    private boolean runDVAlgorithmNoReverse() {
         boolean isChanged = false;
         forwardTable = new HashMap<>(); //empty forward table
 
@@ -173,37 +171,19 @@ public class Router {
                 }
             }
         }
-        return isChanged;
-    }
 
-    /**
-     * DV Algorithm without poison reverse
-     *
-     * @return true if distance vector was updated, false if not
-     */
-    private boolean runDVAlgorithmWithReverse() {
-        boolean isChanged = false;
-        forwardTable = new HashMap<>(); //empty forward table
-
-        // iterate through all neighbors' distance vector
-        for (Address nAdd : neighbors.keySet()) {
-            Neighbor n = neighbors.get(nAdd);
-            DistanceVector nDV = n.getDistVector();
-
-            //iterate though all the destination addresses in a neighbor vector
-            for (Address destAdd : nDV.addressSet()) {
-                int newDist = n.getLinkWeight() + nDV.getDistance(destAdd);
-                Integer currDist = dv.getDistance(destAdd);
-
-                //if link weight to neighbor + neighbor's distance to dest < current distance, update
-                if (currDist == null || currDist > newDist) {
-                    isChanged = true;
-                    dv.updateDistance(destAdd, newDist);
-                    forwardTable.put(destAdd, n);
+        //if activated poison reverse
+        if (reverse) {
+            for (Address destAdd : forwardTable.keySet()) {
+                Neighbor fwdNeighbor = forwardTable.get(destAdd);
+                if (!destAdd.equals(fwdNeighbor.getAddress())) {
+                    dv.removeDistance(destAdd);
                 }
             }
         }
+
         return isChanged;
+
     }
 
     /**

@@ -8,7 +8,7 @@ import java.util.ArrayList;
  */
 public class ContentMessage extends Message {
 
-    int timeToLive; // max number of remaining hops, decremented at each router
+    private int timeToLive; // max number of remaining hops, decremented at each router
     ArrayList<Address> path; // addresses of routers in the path
     String msg;
 
