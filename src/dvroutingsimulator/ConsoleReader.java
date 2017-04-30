@@ -5,7 +5,10 @@
  */
 package dvroutingsimulator;
 
+import java.io.IOException;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -56,19 +59,19 @@ public class ConsoleReader implements Runnable {
         if (fields.length < 4) {
             System.out.println("Missing fields. Required: MSG <dst-ip> <dst-port> <msg>");
         } else {
-            String srcIP = r.getAddress().ip;
-            int srcPort = r.getAddress().port;
             String dstIP = fields[1];
-            int dstPort = Integer.parseInt(fields[1]);
-            int timeToLive = 15;
+            int dstPort = Integer.parseInt(fields[2]);
             
             StringBuilder msg = new StringBuilder();
             for(int i = 3; i < fields.length; i++){
                 msg.append(fields[i]);
             }
             
-            ContentMessage cm = new ContentMessage(
-                    srcIP, srcPort, dstIP, dstPort, timeToLive, msg.toString());
+            try {
+                r.sendContentMsg(dstIP, dstPort, msg.toString());
+            } catch (IOException ex) {
+                Logger.getLogger(ConsoleReader.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
     
@@ -78,14 +81,28 @@ public class ConsoleReader implements Runnable {
      * 
      * @param fields array of fields: CHANGE dst-ip dst-port new-weight
      */
-    public void change(String [] fields){
+    public void change(String [] fields) {
         if (fields.length < 4) {
             System.out.println("Missing fields. Required: CHANGE <dst-ip> <dst-port> <new-weight>");
         } else {
             String dstIP = fields[1];
             int dstPort = Integer.parseInt(fields[2]);
             int newW = Integer.parseInt(fields[3]);
-            r.updateWeight(new Address(dstIP,dstPort), newW);
+            
+            try {
+                // Send weight change to the other neighbor
+                r.sendWeightMsg(dstIP, dstPort, newW);
+                
+                // Update its own weight
+                r.updateWeight(new Address(dstIP,dstPort), newW);
+
+                // Run DV algorithm and update if needed
+                if(r.runDVAlgorithm()){
+                    r.advertiseDV();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(ConsoleReader.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
     

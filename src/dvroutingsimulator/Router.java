@@ -24,6 +24,7 @@ public class Router {
     private ConsoleReader cr;
     private boolean running;
     private final boolean reverse;
+    private int maxTimeToLive;
 
     /**
      * Create a router
@@ -41,6 +42,7 @@ public class Router {
         rl = new RouterListener(this);
         au = new AutoUpdater(this);
         cr = new ConsoleReader(this);
+        maxTimeToLive = 15;
     }
 
     /**
@@ -102,7 +104,7 @@ public class Router {
             socket.send(sendPacket);
         }
     }
-
+    
     /**
      * Forward a content message to the right destination
      *
@@ -133,6 +135,35 @@ public class Router {
                     + " to " + m.getDstAddress().toString()
                     + " died (timeToLive <= 0)\nmsg(" + m.getMessage() + ")");
         }
+    }
+    
+    /**
+     * Send a content message to a specific router
+     *
+     * @param dstIP destination IP
+     * @param dstPort destination port
+     * @param msg the message to send
+     */
+    public void sendContentMsg(String dstIP, int dstPort, String msg) throws IOException {
+        ContentMessage cm = new ContentMessage(this.address.ip, this.address.port, 
+                dstIP, dstPort, this.maxTimeToLive, msg);
+        this.forwardMessage(cm);
+    }
+    
+    /**
+     * Send a weight message directly to a neighbor
+     *
+     * @param dstIP destination IP of the neighbor
+     * @param dstPort destination port of the neighbor
+     * @param newW the new weight
+     */
+    public void sendWeightMsg(String dstIP, int dstPort, int newW) throws IOException {
+        // Create the weight message
+        WeightMessage wm = new WeightMessage(
+                this.address.ip, this.address.port, dstIP, dstPort, newW);
+        
+        // Send the message directly to the neighbor
+        this.sendMessage(wm,neighbors.get(new Address(dstIP, dstPort)));
     }
 
     /**
