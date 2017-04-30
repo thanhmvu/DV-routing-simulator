@@ -3,11 +3,12 @@ package dvroutingsimulator;
 
 /**
  * A wrap-around class for the ip-port pair
- * @author thanhvu
+ * @author havu
  */
 public class Address {
-    String ip;
-    int port;
+    public String ip;
+    public int port;
+    private static final String DLM = ":";
         
     Address(String i, int p){
         ip = i;
@@ -33,6 +34,6 @@ public class Address {
     
     @Override
     public String toString() {
-        return ip + ":" + port;
+        return ip + DLM + port;
     }
 }

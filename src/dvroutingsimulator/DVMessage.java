@@ -1,13 +1,22 @@
 package dvroutingsimulator;
 
 /**
- *
+ * A router control message that contains its distance vector.
+ * This message should be used to advertise router's dist. vect.
+ * 
  * @author thanhvu
  */
 public class DVMessage extends Message {
 
     private DistanceVector dv;
 
+    /**
+     * Constructor for DVMessage
+     *
+     * @param srcAdd IP and port of source router
+     * @param dstAdd IP and port of destination router
+     * @param distVect the distance vector of src router
+     */
     public DVMessage(Address srcAdd, Address dstAdd, DistanceVector distVect) {
         super(MsgType.DV, srcAdd.ip, srcAdd.port, dstAdd.ip, dstAdd.port);
         this.dv = distVect;
@@ -15,8 +24,8 @@ public class DVMessage extends Message {
 
     /**
      * Constructor that parses a string representation of a DVMessage Message's
-     * format: "type[delimiter]srcIP[delimiter]srcPort[delimiter]
-     * dstIP[delimiter]dstPort[delimiter]distanceVector"
+     * format: "type[DLM]srcIP[DLM]srcPort[DLM]
+     * dstIP[DLM]dstPort[DLM]distanceVector"
      *
      * @param text
      */
@@ -32,8 +41,8 @@ public class DVMessage extends Message {
 
     /**
      * Output a string representation of a DVMessage using the following format:
-     * "type[delimiter]srcIP[delimiter]srcPort[delimiter]
-     * dstIP[delimiter]dstPort[delimiter]distanceVector"
+     * "type[DLM]srcIP[DLM]srcPort[DLM]
+     * dstIP[DLM]dstPort[DLM]distanceVector"
      *
      * @return a string representation of a DVMessage
      */
@@ -45,6 +54,11 @@ public class DVMessage extends Message {
         return output;
     }
 
+    /**
+     * Getter for dist. vect
+     *
+     * @return the dist. vect. advertised by this message
+     */
     public DistanceVector getDistVect() {
         return dv;
     }
