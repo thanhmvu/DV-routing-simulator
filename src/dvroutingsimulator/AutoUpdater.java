@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package dvroutingsimulator;
 
 import java.io.IOException;
@@ -13,11 +8,11 @@ import java.util.logging.Logger;
 
 /**
  * Automatically advertise distance vector of the router every t seconds
- * 
+ *
  * @author thanhvu
  */
-public class AutoUpdater implements Runnable{
-    
+public class AutoUpdater implements Runnable {
+
     private final Router r;
     private Timer timer;
     private long t;
@@ -33,14 +28,14 @@ public class AutoUpdater implements Runnable{
         this.timer = new Timer();
         this.t = 20; // t seconds
     }
-    
+
     /**
      * Run this thread
      */
-    public void run(){
+    public void run() {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
-            public void run(){
+            public void run() {
                 try {
                     r.advertiseDV();
                 } catch (IOException ex) {
@@ -56,11 +51,11 @@ public class AutoUpdater implements Runnable{
             }
         }, 0, n * t * 1000);
     }
-    
+
     /**
      * Stop this thread
      */
-    public void stop(){
+    public void stop() {
         timer.cancel();
     }
 }
