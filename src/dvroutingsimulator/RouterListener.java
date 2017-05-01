@@ -70,6 +70,10 @@ public class RouterListener extends Thread {
                 return;
             case DV:
                 DVMessage dMsg = new DVMessage(protocol);
+                
+                // set the sender neighbor's status to be updated
+                r.updateNeighborStatus(dMsg.getSrcAddress());
+                
                 if (r.updateDV(dMsg.getSrcAddress(), dMsg.getDistVect())) {
                     if (r.runDVAlgorithm()) {
                         r.advertiseDV();

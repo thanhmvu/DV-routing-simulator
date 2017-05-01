@@ -1,6 +1,5 @@
 
 package dvroutingsimulator;
-import java.util.Timer;
 
 /**
  * Implement the neighbor router
@@ -10,13 +9,13 @@ public class Neighbor {
     private Address a;
     private DistanceVector dv;
     private int w;
-    private Timer timer;
+    private boolean updated;
     
     Neighbor(Address a, int weight) {
         this.a = a;
         this.w = weight;
         dv = new DistanceVector();
-//        timer = new Timer();
+        updated = false;
     }
     
     DistanceVector getDistVector() {
@@ -39,4 +38,11 @@ public class Neighbor {
         this.w = weight;
     }
     
+    void setStatus(boolean s){
+        updated = s;
+    }
+    
+    boolean isUpdated(){
+        return updated;
+    }
 }

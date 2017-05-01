@@ -5,6 +5,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Contains all methods to simulate a router, include all algorithms and
@@ -320,5 +322,33 @@ public class Router {
             System.out.println(nei.getAddress().toString() 
                     +": "+ nei.getDistVector().toString());
         }
+    }
+    
+    /**
+     * Method to check and drop inactive neighbors.
+     */
+    public void checkNeighborStatus(){
+        Iterator<Map.Entry<Address, Neighbor>> it = neighbors.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Address, Neighbor> entry = it.next();
+            Neighbor nei = entry.getValue();
+            if (!nei.isUpdated()) {
+                // drop inactive neighbor
+                it.remove(); 
+            } else {
+                // reset neighbor's status
+                nei.setStatus(false);
+            }
+        }
+    }
+
+    /**
+     * Update neighbor's status
+     * 
+     * @param add Address of the neighbor to update
+     */
+    public void updateNeighborStatus(Address add){
+        // set neighbor status to "updated"
+        neighbors.get(add).setStatus(true);
     }
 }

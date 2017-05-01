@@ -3,7 +3,7 @@ package dvroutingsimulator;
 
 /**
  * A wrap-around class for the ip-port pair
- * @author havu
+ * @author hongha912
  */
 public class Address {
     public String ip;

@@ -2,13 +2,12 @@ package dvroutingsimulator;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Objects;
 import java.util.Set;
 
 /**
  * Create a distance vector for the DV Routing Simulator
  *
- * @author thanhvu
+ * @author hongha912
  */
 public class DistanceVector {
 
@@ -25,6 +24,11 @@ public class DistanceVector {
 
     /**
      * Create a distance vector based on protocol
+     * Protocol format: 
+     * 
+     * "ip[INTRA_DLM]port[INTRA_DLM]dist[INTER_DLM]
+     * ip[INTRA_DLM]port[INTRA_DLM]dist[INTER_DLM]
+     * ..."
      *
      * @param text The text protocol that is received through the port
      */
@@ -42,9 +46,13 @@ public class DistanceVector {
     }
 
     /**
-     * This method should output a text representation of a DV using a specific
-     * format
-     *
+     * This method returns a text representation of a DV 
+     * using the following format:
+     * 
+     * "ip[INTRA_DLM]port[INTRA_DLM]dist[INTER_DLM]
+     * ip[INTRA_DLM]port[INTRA_DLM]dist[INTER_DLM]
+     * ..."
+     * 
      * @return a String that represents a DV
      */
     @Override
@@ -61,6 +69,7 @@ public class DistanceVector {
 
     /**
      * Check if distance vector contains the same keys and values to another
+     * 
      * @param o Another object
      * @return true if equal, false if not
      */
@@ -102,6 +111,9 @@ public class DistanceVector {
         return dvMap.keySet();
     }
 
+    /**
+     * Remove a router's address in the dv
+     */
     void removeDistance(Address destAdd) {
         dvMap.remove(destAdd);
     }

@@ -21,6 +21,7 @@ public class AutoUpdater implements Runnable{
     private final Router r;
     private Timer timer;
     private long t;
+    private int n = 3;
 
     /**
      * Constructor for AutoUpdater
@@ -30,7 +31,7 @@ public class AutoUpdater implements Runnable{
     AutoUpdater(Router router) {
         this.r = router;
         this.timer = new Timer();
-        this.t = 30; // 30 seconds
+        this.t = 20; // t seconds
     }
     
     /**
@@ -47,6 +48,13 @@ public class AutoUpdater implements Runnable{
                 }
             }
         }, 0, t * 1000);
+        
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run(){
+                r.checkNeighborStatus();
+            }
+        }, 0, n * t * 1000);
     }
     
     /**
