@@ -40,7 +40,7 @@ public class DVRoutingSimulator {
                 String ip = fields[0];
                 int port = Integer.parseInt(fields[1]);
                 int weight = Integer.parseInt(fields[2]);
-                r.addNeighbor(ip, port, weight);
+                r.addNeighbor(new Address(ip, port), weight);
             }
         } catch (IOException ex) {
             Logger.getLogger(DVRoutingSimulator.class.getName()).log(Level.SEVERE, null, ex);

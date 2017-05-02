@@ -78,9 +78,15 @@ public class RouterListener implements Runnable {
                 return;
             case DV:
                 DVMessage dMsg = new DVMessage(protocol);
+                Address nAdd = dMsg.getSrcAddress();
+
+                //check if neighbor is added, add if yes
+                if (!r.containsNeighbor(nAdd)) {
+                    r.addNeighbor(nAdd);
+                }
 
                 // set the sender neighbor's status to be updated
-                r.updateNeighborStatus(dMsg.getSrcAddress());
+                r.restartNeighborTimer(nAdd);
 
                 if (r.updateDV(dMsg.getSrcAddress(), dMsg.getDistVect())) {
                     if (r.runDVAlgorithm()) {
@@ -91,12 +97,21 @@ public class RouterListener implements Runnable {
 
             case WEIGHT:
                 WeightMessage wMsg = new WeightMessage(protocol);
-                if (r.updateWeight(wMsg.getSrcAddress(), wMsg.getWeight())) {
-                    if (r.runDVAlgorithm()) {
-                        r.advertiseDV();
+                //check if the message comes from a neighbor
+                Address neiAdd = wMsg.getSrcAddress();
+
+                //if address is not from the neighbor, it means that a neighbor just joins the network
+                if (!r.containsNeighbor(neiAdd)) {
+                    r.addNeighbor(neiAdd, wMsg.getWeight());
+                } // else, update weight of the neighbor
+                else {
+                    if (r.updateWeight(wMsg.getSrcAddress(), wMsg.getWeight())) {
+                        if (r.runDVAlgorithm()) {
+                            r.advertiseDV();
+                        }
                     }
                 }
-                break;
+                return;
         }
     }
 

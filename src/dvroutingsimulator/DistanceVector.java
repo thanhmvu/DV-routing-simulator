@@ -1,8 +1,9 @@
 package dvroutingsimulator;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Create a distance vector for the DV Routing Simulator
@@ -11,7 +12,7 @@ import java.util.Set;
  */
 public class DistanceVector {
 
-    private HashMap<Address, Integer> dvMap;
+    private Map<Address, Integer> dvMap;
     private static final String INTER_DLM = ";"; //inter-vector delimiter
     private static final String INTRA_DLM = ":"; //intra-vector delimiter
 
@@ -19,7 +20,7 @@ public class DistanceVector {
      * Create a new distance vector
      */
     public DistanceVector() {
-        dvMap = new LinkedHashMap<>();
+        dvMap = new ConcurrentHashMap<>();
     }
 
     /**
@@ -80,6 +81,17 @@ public class DistanceVector {
             return this.dvMap.equals(nDV.dvMap);
         }
         return false;
+    }
+
+    /**
+     * Override hash code just to enable this to be used in hashmap
+     * @return a hash code for the distance vector
+     */
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 47 * hash + Objects.hashCode(this.dvMap);
+        return hash;
     }
 
     /**

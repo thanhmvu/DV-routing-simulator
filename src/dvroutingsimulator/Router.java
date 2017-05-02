@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Contains all methods to simulate a router, include all algorithms and
@@ -17,13 +19,22 @@ import java.util.Map;
 public class Router {
 
     private final Address address;
-    private HashMap<Address, Neighbor> neighbors;
-    private HashMap<Address, Neighbor> forwardTable;
+    
+    //containers to store the neighbors
+    private final Set<Address> liveNeighborAdds;
+    private final Map<Address, Neighbor> neighborsCache;
+    
+    //the forward table
+    private final Map<Address, Neighbor> forwardTable;
+    
+    //current distance vector
     private final DistanceVector dv;
 
+    //threads
     private RouterListener rl;
     private AutoUpdater au;
     private ConsoleReader cr;
+
     private final boolean reverse;
     private static final int MAX_TIME_TO_LIVE = 15;
 
@@ -37,8 +48,11 @@ public class Router {
     public Router(String ip, int port, boolean reverse) {
         address = new Address(ip, port);
         this.reverse = reverse;
-        forwardTable = new HashMap<>();
-        neighbors = new HashMap<>();
+        
+        //make sure that the containers here are threadsafe
+        forwardTable = new ConcurrentHashMap<>();
+        liveNeighborAdds = ConcurrentHashMap.newKeySet();
+        neighborsCache = new ConcurrentHashMap<>();
         dv = new DistanceVector();
 
     }
@@ -53,30 +67,54 @@ public class Router {
     }
 
     /**
+     * Check if an address is a neighbor of a router
+     *
+     * @param nAdd Neighbor address
+     * @return true if it is contained as a neighbor, false if it's not
+     */
+    public boolean containsNeighbor(Address nAdd) {
+        return liveNeighborAdds.contains(nAdd);
+    }
+
+    /**
+     * Add a neighbor when only address is present -- only add when the neighbor
+     * is cached
+     *
+     * @param a Address of the neighbor
+     */
+    public void addNeighbor(Address a) {
+        if (neighborsCache.containsKey(a)) {
+            liveNeighborAdds.add(a);
+        }
+    }
+
+    /**
      * Add a new neighbor into the router. Link weights map is updated, distance
      * vector is updated. DV Algorithm is run to determine forwarding table
      *
-     * @param ip IP of the neighbor
-     * @param port Port number of the neighbor
+     * @param a Address of the neighbor
      * @param weight The weight of the neighbor
      * @throws java.io.IOException Happens when DV is advertised
      */
-    public void addNeighbor(String ip, int port, int weight) throws IOException {
-        Address neighborAddress = new Address(ip, port);
-        neighbors.put(neighborAddress, new Neighbor(neighborAddress, weight));
+    public void addNeighbor(Address a, int weight) throws IOException {
+        liveNeighborAdds.add(a);
+        neighborsCache.put(a, new Neighbor(a, weight));
         dv.updateDistance(address, weight);
+
         if (runDVAlgorithm()) {
             advertiseDV();
         }
     }
 
     /**
-     * Drop a neighbor from the router
+     * Remove a neighbor
      *
-     * @param a The address of the neighbor
+     * @param a A neighbor address
      */
     public void dropNeighbor(Address a) {
-        neighbors.remove(a);
+        liveNeighborAdds.remove(a);
+        Neighbor n = neighborsCache.get(a);
+        n.stopTimer();
 
     }
 
@@ -141,10 +179,11 @@ public class Router {
      * @param dstIP destination IP
      * @param dstPort destination port
      * @param msg the message to send
+     * @throws java.io.IOException
      */
     public void sendContentMsg(String dstIP, int dstPort, String msg) throws IOException {
         ContentMessage cm = new ContentMessage(this.address.ip, this.address.port,
-                dstIP, dstPort, this.MAX_TIME_TO_LIVE, msg);
+                dstIP, dstPort, MAX_TIME_TO_LIVE, msg);
         this.forwardMessage(cm);
     }
 
@@ -154,6 +193,7 @@ public class Router {
      * @param dstIP destination IP of the neighbor
      * @param dstPort destination port of the neighbor
      * @param newW the new weight
+     * @throws java.io.IOException
      */
     public void sendWeightMsg(String dstIP, int dstPort, int newW) throws IOException {
         // Create the weight message
@@ -161,7 +201,7 @@ public class Router {
                 this.address.ip, this.address.port, dstIP, dstPort, newW);
 
         // Send the message directly to the neighbor
-        this.sendMessage(wm, neighbors.get(new Address(dstIP, dstPort)));
+        this.sendMessage(wm, neighborsCache.get(new Address(dstIP, dstPort)));
     }
 
     /**
@@ -183,11 +223,11 @@ public class Router {
      */
     public boolean runDVAlgorithm() {
         boolean isChanged = false;
-        forwardTable = new HashMap<>(); //empty forward table
+        forwardTable.clear();
 
         // iterate through all neighbors' distance vector
-        for (Address nAdd : neighbors.keySet()) {
-            Neighbor n = neighbors.get(nAdd);
+        for (Address nAdd : liveNeighborAdds) {
+            Neighbor n = neighborsCache.get(nAdd);
             DistanceVector nDV = n.getDistVector();
 
             //iterate though all the destination addresses in a neighbor vector
@@ -225,9 +265,9 @@ public class Router {
      * @param weight The weight of the new link
      * @return true if is updated, false if no change
      */
-    public boolean updateWeight(Address nAdd, int weight) {
-        Neighbor n = neighbors.get(nAdd);
-        // WHAT IF nAdd IS NOT A NEIGHBOR, n == null?
+    public boolean updateWeight(Address nAdd, int weight) throws IOException {
+        Neighbor n = neighborsCache.get(nAdd);
+
         int currWeight = n.getLinkWeight();
         if (currWeight != weight) {
             n.setLinkWeight(weight);
@@ -246,8 +286,8 @@ public class Router {
      * @throws java.io.IOException
      */
     public boolean updateDV(Address nAdd, DistanceVector nDV) throws IOException {
-        Neighbor n = neighbors.get(nAdd);
-        DistanceVector currDV = neighbors.get(nAdd).getDistVector();
+        Neighbor n = neighborsCache.get(nAdd);
+        DistanceVector currDV = neighborsCache.get(nAdd).getDistVector();
         if (!currDV.equals(nDV)) {
             n.setDistVector(nDV);
             return true;
@@ -261,9 +301,9 @@ public class Router {
      * @throws IOException
      */
     public void advertiseDV() throws IOException {
-        for (Address nAdd : neighbors.keySet()) {
+        for (Address nAdd : liveNeighborAdds) {
             DVMessage dvMess = new DVMessage(address, nAdd, dv);
-            sendMessage(dvMess, neighbors.get(nAdd));
+            sendMessage(dvMess, neighborsCache.get(nAdd));
         }
     }
 
@@ -308,37 +348,96 @@ public class Router {
     /**
      * Print the neighbor's distance vectors
      */
-    public void printNeighborDV() {
-        for (Neighbor nei : neighbors.values()) {
+    public void printNeighborsDV() {
+        for (Address nAdd: liveNeighborAdds) {
+            Neighbor nei = neighborsCache.get(nAdd);
             System.out.println(nei.getAddress().toString()
                     + ": " + nei.getDistVector().toString());
         }
     }
 
     /**
-     * Method to check and drop inactive neighbors.
+     * Restart the timer every time a DV update is received
+     *
+     * @param neiAdd
      */
-    public void checkNeighborStatus() {
-
-        for (Address nAdd : neighbors.keySet()) {
-            Neighbor n = neighbors.get(nAdd);
-            if (!n.isUpdated()) {
-                // drop inactive neighbor
-                this.dropNeighbor(nAdd);
-            } else {
-                // reset neighbor's status
-                n.setUpdatedStatus(false);
-            }
+    public void restartNeighborTimer(Address neiAdd) {
+        Neighbor n = neighborsCache.get(neiAdd);
+        if (n != null) {
+            n.restartTimer();
         }
     }
 
     /**
-     * Update neighbor's status
-     *
-     * @param add Address of the neighbor to update
+     * Create a class to contain neighbor router, bundling neighbor information
+     * together
      */
-    public void updateNeighborStatus(Address add) {
-        // set neighbor status to "updated"
-        neighbors.get(add).setUpdatedStatus(true);
+    private class Neighbor {
+
+        private Address a;
+        private DistanceVector dv;
+        private int w;
+        private Timer timer;
+        private int n = 3;
+        private final long t = 20;
+
+        /**
+         * Create a neighbor
+         *
+         * @param a Address of the neighbor
+         * @param weight The weight of the neighbor
+         */
+        private Neighbor(Address a, int weight) {
+            this.a = a;
+            this.w = weight;
+            dv = new DistanceVector();
+            timer = new Timer();
+            restartTimer();
+        }
+
+        /**
+         * Restart the timer if it's already started. The task is a drop
+         * neighbor task
+         */
+        private void restartTimer() {
+            timer.cancel();
+            timer = new Timer();
+
+            //this task drop the neighbor from the current router that it's contained in
+            TimerTask dropNeighborTask = new TimerTask() {
+                @Override
+                public void run() {
+                    dropNeighbor(a);
+                }
+            };
+            timer.schedule(dropNeighborTask, n * t * 1000);
+        }
+
+        /**
+         * Stop the timer
+         */
+        private void stopTimer() {
+            timer.cancel();
+        }
+
+        private DistanceVector getDistVector() {
+            return dv;
+        }
+
+        private void setDistVector(DistanceVector dv) {
+            this.dv = dv;
+        }
+
+        private int getLinkWeight() {
+            return w;
+        }
+
+        private Address getAddress() {
+            return a;
+        }
+
+        private void setLinkWeight(int weight) {
+            this.w = weight;
+        }
     }
 }
