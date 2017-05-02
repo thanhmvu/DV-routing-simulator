@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 public class RouterListener implements Runnable {
 
     private final Router r;
+    private volatile boolean running;
 
     /**
      * Create a new router listener
@@ -24,6 +25,7 @@ public class RouterListener implements Runnable {
     RouterListener(Router router) {
         super();
         this.r = router;
+        running = true;
     }
 
     /**
@@ -34,19 +36,25 @@ public class RouterListener implements Runnable {
         try {
             DatagramSocket listeningSocket = new DatagramSocket(r.getAddress().port);
             int maxSize = 1024;
-            byte[] receiveData = new byte[maxSize];
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            while (r.isRunning()) {
+            while (running) {
+                byte[] receiveData = new byte[maxSize];
+                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                 listeningSocket.receive(receivePacket);
                 String protocol = new String(receivePacket.getData());
                 this.handleProtocol(protocol);
-
             }
         } catch (SocketException ex) {
             Logger.getLogger(RouterListener.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(RouterListener.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    /**
+     * Stop the thread
+     */
+    public void stop() {
+        running = false;
     }
 
     /**
@@ -70,10 +78,10 @@ public class RouterListener implements Runnable {
                 return;
             case DV:
                 DVMessage dMsg = new DVMessage(protocol);
-                
+
                 // set the sender neighbor's status to be updated
                 r.updateNeighborStatus(dMsg.getSrcAddress());
-                
+
                 if (r.updateDV(dMsg.getSrcAddress(), dMsg.getDistVect())) {
                     if (r.runDVAlgorithm()) {
                         r.advertiseDV();

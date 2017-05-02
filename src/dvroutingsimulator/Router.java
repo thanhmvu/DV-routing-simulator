@@ -24,9 +24,8 @@ public class Router {
     private RouterListener rl;
     private AutoUpdater au;
     private ConsoleReader cr;
-    private boolean running;
     private final boolean reverse;
-    private int maxTimeToLive;
+    private static final int MAX_TIME_TO_LIVE = 15;
 
     /**
      * Create a router
@@ -42,7 +41,6 @@ public class Router {
         neighbors = new HashMap<>();
         dv = new DistanceVector();
 
-        maxTimeToLive = 15;
     }
 
     /**
@@ -146,7 +144,7 @@ public class Router {
      */
     public void sendContentMsg(String dstIP, int dstPort, String msg) throws IOException {
         ContentMessage cm = new ContentMessage(this.address.ip, this.address.port,
-                dstIP, dstPort, this.maxTimeToLive, msg);
+                dstIP, dstPort, this.MAX_TIME_TO_LIVE, msg);
         this.forwardMessage(cm);
     }
 
@@ -271,20 +269,9 @@ public class Router {
 
 //======================THREAD CONTROL=====================================
     /**
-     * Print
-     *
-     * @return true if router is still running, false if not
-     */
-    public boolean isRunning() {
-        return running;
-    }
-
-    /**
      * Start all the threads in the router
      */
     public final void startAllThreads() {
-        running = true;
-
         //start RouterListener thread
         rl = new RouterListener(this);
         Thread rlThread = new Thread(rl);
@@ -305,8 +292,7 @@ public class Router {
      * Stop all threads from running
      */
     public void stop() {
-        // IS THIS THE CORRECT WAY TO STOP THE THREATS?
-        running = false;
+        rl.stop();
         au.stop();
         cr.stop();
     }
@@ -328,32 +314,31 @@ public class Router {
                     + ": " + nei.getDistVector().toString());
         }
     }
-    
+
     /**
      * Method to check and drop inactive neighbors.
      */
-    public void checkNeighborStatus(){
-        Iterator<Map.Entry<Address, Neighbor>> it = neighbors.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Address, Neighbor> entry = it.next();
-            Neighbor nei = entry.getValue();
-            if (!nei.isUpdated()) {
+    public void checkNeighborStatus() {
+
+        for (Address nAdd : neighbors.keySet()) {
+            Neighbor n = neighbors.get(nAdd);
+            if (!n.isUpdated()) {
                 // drop inactive neighbor
-                it.remove(); 
+                this.dropNeighbor(nAdd);
             } else {
                 // reset neighbor's status
-                nei.setStatus(false);
+                n.setUpdatedStatus(false);
             }
         }
     }
 
     /**
      * Update neighbor's status
-     * 
+     *
      * @param add Address of the neighbor to update
      */
-    public void updateNeighborStatus(Address add){
+    public void updateNeighborStatus(Address add) {
         // set neighbor status to "updated"
-        neighbors.get(add).setStatus(true);
+        neighbors.get(add).setUpdatedStatus(true);
     }
 }

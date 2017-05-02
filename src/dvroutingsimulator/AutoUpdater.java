@@ -14,9 +14,9 @@ import java.util.logging.Logger;
 public class AutoUpdater implements Runnable {
 
     private final Router r;
-    private Timer timer;
-    private long t;
-    private int n = 3;
+    private final Timer timer;
+    private final long t;           // t seconds
+    private final int n = 3;
 
     /**
      * Constructor for AutoUpdater

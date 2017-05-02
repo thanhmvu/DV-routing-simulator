@@ -38,7 +38,7 @@ public class Neighbor {
         this.w = weight;
     }
     
-    void setStatus(boolean s){
+    void setUpdatedStatus(boolean s){
         updated = s;
     }
     
