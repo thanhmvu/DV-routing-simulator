@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Contains all methods to simulate a router, include all algorithms and
@@ -55,6 +57,13 @@ public class Router {
         neighborsCache = new ConcurrentHashMap<>();
         dv = new DistanceVector();
 
+        try {
+            addNeighbor(address, 0);
+            
+        } catch (IOException ex) {
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
     /**
@@ -99,9 +108,9 @@ public class Router {
     public void addNeighbor(Address a, int weight) throws IOException {
         liveNeighborAdds.add(a);
         neighborsCache.put(a, new Neighbor(a, weight));
-        dv.updateDistance(address, weight);
+        dv.updateDistance(a, weight);
 
-        if (runDVAlgorithm()) {
+        if (!a.equals(address) && runDVAlgorithm()) {
             advertiseDV();
         }
     }
@@ -248,7 +257,7 @@ public class Router {
 
             //iterate though all the destination addresses in a neighbor vector
             for (Address destAdd : nDV.addressSet()) {
-                int newDist = n.getLinkWeight() + nDV.getDistance(destAdd);
+                Integer newDist = n.getLinkWeight() + nDV.getDistance(destAdd);
                 Integer currDist = dv.getDistance(destAdd);
 
                 //if link weight to neighbor + neighbor's distance to dest < current distance, update
@@ -257,6 +266,7 @@ public class Router {
                     dv.updateDistance(destAdd, newDist);
                     forwardTable.put(destAdd, n);
                 }
+
             }
         }
 
@@ -274,7 +284,9 @@ public class Router {
         if (isChanged) {
             System.out.println("new dv calculated:");
             for (Address a : dv.addressSet()) {
-                System.out.println(a.toString() + " " + dv.getDistance(a) +" " + forwardTable.get(a).getAddress().toString());
+                System.out.println(a.toString() + " "
+                        + dv.getDistance(a) + " "
+                        + forwardTable.get(a).getAddress().toString());
             }
         }
 
@@ -374,9 +386,11 @@ public class Router {
      */
     public void printNeighborsDV() {
         for (Address nAdd : liveNeighborAdds) {
-            Neighbor nei = neighborsCache.get(nAdd);
-            System.out.println(nei.getAddress().toString()
-                    + ": " + nei.getDistVector().toString());
+            if (!nAdd.equals(address)) {
+                Neighbor nei = neighborsCache.get(nAdd);
+                System.out.println(nei.getAddress().toString()
+                        + ": " + nei.getDistVector().toString());
+            }
         }
     }
 

@@ -78,6 +78,7 @@ public class RouterListener implements Runnable {
                 return;
             case DV:
                 DVMessage dMsg = new DVMessage(protocol);
+                r.debugPrintReceiveMsg(dMsg);
                 Address nAdd = dMsg.getSrcAddress();
 
                 //check if neighbor is added, add if yes
@@ -97,6 +98,7 @@ public class RouterListener implements Runnable {
 
             case WEIGHT:
                 WeightMessage wMsg = new WeightMessage(protocol);
+                r.debugPrintReceiveMsg(wMsg);
                 //check if the message comes from a neighbor
                 Address neiAdd = wMsg.getSrcAddress();
 
