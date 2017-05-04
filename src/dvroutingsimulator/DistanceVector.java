@@ -1,6 +1,7 @@
 package dvroutingsimulator;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -139,5 +140,17 @@ public class DistanceVector {
      */
     void removeDistance(Address destAdd) {
         dvMap.remove(destAdd);
+    }
+    
+    DistanceVector deepCopy() {
+        DistanceVector newDV = new DistanceVector();
+        for (Entry<Address, Integer> s: dvMap.entrySet()) {
+            newDV.dvMap.put(s.getKey(), s.getValue());
+        }
+        return newDV;
+    }
+
+    void clear() {
+        dvMap.clear();
     }
 }

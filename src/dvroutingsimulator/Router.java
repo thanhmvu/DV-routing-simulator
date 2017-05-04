@@ -57,13 +57,12 @@ public class Router {
         neighborsCache = new ConcurrentHashMap<>();
         dv = new DistanceVector();
 
-        try {
-            addNeighbor(address, 0);
-            
-        } catch (IOException ex) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+//        try {
+//            addNeighbor(address, 0);
+//
+//        } catch (IOException ex) {
+//            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 
     /**
@@ -75,6 +74,7 @@ public class Router {
         return address;
     }
 
+//======================NEIGHBOR METHODS=====================================
     /**
      * Check if an address is a neighbor of a router
      *
@@ -105,12 +105,13 @@ public class Router {
      * @param weight The weight of the neighbor
      * @throws java.io.IOException Happens when DV is advertised
      */
-    public void addNeighbor(Address a, int weight) throws IOException {
+    public final void addNeighbor(Address a, int weight) throws IOException {
+        Neighbor newNeighbor = new Neighbor(a, weight, this);
         liveNeighborAdds.add(a);
-        neighborsCache.put(a, new Neighbor(a, weight));
-        dv.updateDistance(a, weight);
+        neighborsCache.put(a, newNeighbor);
 
-        if (!a.equals(address) && runDVAlgorithm()) {
+        //run the DV algorithm, and advertise if updated
+        if (runDVAlgorithm()) {
             advertiseDV();
         }
     }
@@ -247,24 +248,32 @@ public class Router {
      * false
      */
     public boolean runDVAlgorithm() {
-        boolean isChanged = false;
-        forwardTable.clear();
+        DistanceVector oldDV = (DistanceVector) dv.deepCopy();
+        dv.clear();
 
-        // iterate through all neighbors' distance vector
+        //first add all neighbors into dv
         for (Address nAdd : liveNeighborAdds) {
             Neighbor n = neighborsCache.get(nAdd);
-            DistanceVector nDV = n.getDistVector();
+            dv.updateDistance(nAdd, n.getLinkWeight());
+            forwardTable.put(nAdd, n);
+        }
+
+        // then iterate through all neighbors' distance vector
+        for (Address nAdd : liveNeighborAdds) {
+            Neighbor n = neighborsCache.get(nAdd);
 
             //iterate though all the destination addresses in a neighbor vector
+            DistanceVector nDV = n.getDistVector();
             for (Address destAdd : nDV.addressSet()) {
-                Integer newDist = n.getLinkWeight() + nDV.getDistance(destAdd);
-                Integer currDist = dv.getDistance(destAdd);
+                if (!destAdd.equals(address)) {
+                    Integer newDist = n.getLinkWeight() + nDV.getDistance(destAdd);
+                    Integer currDist = dv.getDistance(destAdd);
 
-                //if link weight to neighbor + neighbor's distance to dest < current distance, update
-                if (currDist == null || currDist > newDist) {
-                    isChanged = true;
-                    dv.updateDistance(destAdd, newDist);
-                    forwardTable.put(destAdd, n);
+                    //if link weight to neighbor + neighbor's distance to dest < current distance, update
+                    if (currDist == null || currDist > newDist) {
+                        dv.updateDistance(destAdd, newDist);
+                        forwardTable.put(destAdd, n);
+                    }
                 }
 
             }
@@ -279,6 +288,8 @@ public class Router {
                 }
             }
         }
+
+        boolean isChanged = !oldDV.equals(dv);
 
         //debug print to System.out
         if (isChanged) {
@@ -406,80 +417,13 @@ public class Router {
         }
     }
 
+    /**
+     * Get the distance vector of this router
+     *
+     * @return The distance vector of this router
+     */
     public DistanceVector getDistVect() {
         return dv;
     }
 
-    /**
-     * Create a class to contain neighbor router, bundling neighbor information
-     * together
-     */
-    private class Neighbor {
-
-        private Address a;
-        private DistanceVector dv;
-        private int w;
-        private Timer timer;
-        private int n = 3;
-        private final long t = 20;
-
-        /**
-         * Create a neighbor
-         *
-         * @param a Address of the neighbor
-         * @param weight The weight of the neighbor
-         */
-        private Neighbor(Address a, int weight) {
-            this.a = a;
-            this.w = weight;
-            dv = new DistanceVector();
-            timer = new Timer();
-            restartTimer();
-        }
-
-        /**
-         * Restart the timer if it's already started. The task is a drop
-         * neighbor task
-         */
-        private void restartTimer() {
-            timer.cancel();
-            timer = new Timer();
-
-            //this task drop the neighbor from the current router that it's contained in
-            TimerTask dropNeighborTask = new TimerTask() {
-                @Override
-                public void run() {
-                    dropNeighbor(a);
-                }
-            };
-            timer.schedule(dropNeighborTask, n * t * 1000);
-        }
-
-        /**
-         * Stop the timer
-         */
-        private void stopTimer() {
-            timer.cancel();
-        }
-
-        private DistanceVector getDistVector() {
-            return dv;
-        }
-
-        private void setDistVector(DistanceVector dv) {
-            this.dv = dv;
-        }
-
-        private int getLinkWeight() {
-            return w;
-        }
-
-        private Address getAddress() {
-            return a;
-        }
-
-        private void setLinkWeight(int weight) {
-            this.w = weight;
-        }
-    }
 }
