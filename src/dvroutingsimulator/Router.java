@@ -19,14 +19,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Router {
 
     private final Address address;
-    
+
     //containers to store the neighbors
     private final Set<Address> liveNeighborAdds;
     private final Map<Address, Neighbor> neighborsCache;
-    
+
     //the forward table
     private final Map<Address, Neighbor> forwardTable;
-    
+
     //current distance vector
     private final DistanceVector dv;
 
@@ -48,7 +48,7 @@ public class Router {
     public Router(String ip, int port, boolean reverse) {
         address = new Address(ip, port);
         this.reverse = reverse;
-        
+
         //make sure that the containers here are threadsafe
         forwardTable = new ConcurrentHashMap<>();
         liveNeighborAdds = ConcurrentHashMap.newKeySet();
@@ -115,6 +115,7 @@ public class Router {
         liveNeighborAdds.remove(a);
         Neighbor n = neighborsCache.get(a);
         n.stopTimer();
+        System.out.println("neighbor " + a.toString() + " dropped");
 
     }
 
@@ -205,13 +206,28 @@ public class Router {
     }
 
     /**
-     * Action taken when router receive a content message destined to itself
+     * Print action taken when router receive a content message destined to
+     * itself
      *
      * @param m The message received
      */
-    public void receiveMessage(ContentMessage m) {
-        System.out.println("Message msg received from " + m.getSrcAddress().toString()
-                + "\nmsg(" + m.getMessage() + ")");
+    public void debugPrintReceiveMsg(Message m) {
+        switch (m.getType()) {
+            case CONTENT:
+                System.out.println("Message msg received from " + m.getSrcAddress().toString()
+                        + "\nmsg(" + ((ContentMessage) m).getMessage() + ")");
+                return;
+            case DV:
+                System.out.println("new dv received from " + m.getSrcAddress().toString());
+                DVMessage dMsg = (DVMessage) m;
+                System.out.println(dMsg.getDistVect().debugPrint());
+
+                return;
+            case WEIGHT:
+                System.out.println("new weight to neighbor " + m.getSrcAddress().toString() + " of " + ((WeightMessage) m).getWeight());
+                return;
+        }
+
     }
 
 //======================DISTANCE VECTOR METHODS=====================================
@@ -244,13 +260,21 @@ public class Router {
             }
         }
 
-        //if activated poison reverse
+        //if activated poison reverse, remove distance from addresses not present in forward table
         if (reverse) {
             for (Address destAdd : forwardTable.keySet()) {
                 Neighbor fwdNeighbor = forwardTable.get(destAdd);
                 if (!destAdd.equals(fwdNeighbor.getAddress())) {
                     dv.removeDistance(destAdd);
                 }
+            }
+        }
+
+        //debug print to System.out
+        if (isChanged) {
+            System.out.println("new dv calculated:");
+            for (Address a : dv.addressSet()) {
+                System.out.println(a.toString() + " " + dv.getDistance(a) +" " + forwardTable.get(a).getAddress().toString());
             }
         }
 
@@ -349,7 +373,7 @@ public class Router {
      * Print the neighbor's distance vectors
      */
     public void printNeighborsDV() {
-        for (Address nAdd: liveNeighborAdds) {
+        for (Address nAdd : liveNeighborAdds) {
             Neighbor nei = neighborsCache.get(nAdd);
             System.out.println(nei.getAddress().toString()
                     + ": " + nei.getDistVector().toString());
@@ -366,6 +390,10 @@ public class Router {
         if (n != null) {
             n.restartTimer();
         }
+    }
+
+    public DistanceVector getDistVect() {
+        return dv;
     }
 
     /**

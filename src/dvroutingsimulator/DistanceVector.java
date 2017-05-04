@@ -67,6 +67,17 @@ public class DistanceVector {
         }
         return result;
     }
+    
+    public String debugPrint() {
+        String result = "";
+        for (Address a : dvMap.keySet()) {
+            result += "\n" + a.toString() + " " + dvMap.get(a);
+        }
+        if (result.length() > 0) {
+            result = result.substring(1);
+        }
+        return result;
+    }
 
     /**
      * Check if distance vector contains the same keys and values to another

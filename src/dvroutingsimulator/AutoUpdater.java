@@ -14,8 +14,9 @@ import java.util.logging.Logger;
 public class AutoUpdater implements Runnable {
 
     private final Router r;
-    private final Timer timer;
-    private final long t;           // t seconds
+    private Timer timer;
+    private final long t;           // period between scheduled tasks
+    private long timeCnt;     // time count from beginning of thread to now
 
     /**
      * Constructor for AutoUpdater
@@ -24,31 +25,31 @@ public class AutoUpdater implements Runnable {
      */
     AutoUpdater(Router router) {
         this.r = router;
-        this.timer = new Timer();
         this.t = 20; // t seconds
+        this.timeCnt = 0;
     }
 
     /**
      * Run this thread
      */
+    @Override
     public void run() {
+        timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 try {
+                    timeCnt += t;
                     r.advertiseDV();
+
+                    //debug print
+                    System.out.println("Update sent to all neighbors at time " + timeCnt);
+                    System.out.println(r.getDistVect().debugPrint());
                 } catch (IOException ex) {
                     Logger.getLogger(AutoUpdater.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }, 0, t * 1000);
-        
-//        timer.scheduleAtFixedRate(new TimerTask() {
-//            @Override
-//            public void run(){
-//                r.checkNeighborStatus();
-//            }
-//        }, 0, n * t * 1000);
     }
 
     /**
@@ -56,5 +57,6 @@ public class AutoUpdater implements Runnable {
      */
     public void stop() {
         timer.cancel();
+        timeCnt = 0;
     }
 }
