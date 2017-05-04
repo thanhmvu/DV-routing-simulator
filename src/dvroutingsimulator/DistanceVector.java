@@ -63,7 +63,7 @@ public class DistanceVector {
             result += INTER_DLM + a.ip + INTRA_DLM + a.port + INTRA_DLM + dvMap.get(a);
         }
         if (result.length() > 0) {
-            result = result.substring(0);
+            result = result.substring(1);
         }
         return result;
     }

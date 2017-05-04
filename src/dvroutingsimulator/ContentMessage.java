@@ -95,7 +95,7 @@ public class ContentMessage extends Message {
         for (Address ad : path) {
             output += ad.ip + iDLM + ad.port + pDLM;
         }
-        return output;
+        return output + DLM;
     }
 
     /**

@@ -56,7 +56,7 @@ public class WeightMessage extends Message {
     public String toString() {
         String output = type + DLM + srcAdd.ip + DLM + srcAdd.port
                 + DLM + dstAdd.ip + DLM + dstAdd.port
-                + DLM + weight;
+                + DLM + weight + DLM;
         return output;
     }
 

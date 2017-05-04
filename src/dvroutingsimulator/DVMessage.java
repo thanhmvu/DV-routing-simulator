@@ -50,7 +50,7 @@ public class DVMessage extends Message {
     public String toString() {
         String output = type + DLM + srcAdd.ip + DLM + srcAdd.port
                 + DLM + dstAdd.ip + DLM + dstAdd.port
-                + DLM + dv.toString();
+                + DLM + dv.toString() + DLM;
         return output;
     }
 
