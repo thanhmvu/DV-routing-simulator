@@ -33,12 +33,14 @@ public class ConsoleReader implements Runnable {
             String[] tmp = sc.nextLine().split(DLM);
             if (tmp.length < 1) {
                 System.out.println("No command found!");
-            } else if (tmp[0].equals("PRINT")) {
+            } else if (tmp[0].equalsIgnoreCase("PRINT")) {
                 print();
-            } else if (tmp[0].equals("MSG")) {
+            } else if (tmp[0].equalsIgnoreCase("MSG")) {
                 msg(tmp);
-            } else if (tmp[0].equals("CHANGE")) {
+            } else if (tmp[0].equalsIgnoreCase("CHANGE")) {
                 change(tmp);
+            } else {
+                System.out.println("Wrong command format!");
             }
         }
     }
