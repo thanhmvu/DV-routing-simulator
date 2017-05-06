@@ -43,7 +43,7 @@ public class AutoUpdater implements Runnable {
 
                     //debug print
                     System.out.println("Update sent to all neighbors at time " + timeCnt);
-                    System.out.println(r.getDistVect().debugPrint());
+                    
                 } catch (IOException ex) {
                     Logger.getLogger(AutoUpdater.class.getName()).log(Level.SEVERE, null, ex);
                 }

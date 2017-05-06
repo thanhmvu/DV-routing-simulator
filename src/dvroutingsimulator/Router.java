@@ -74,8 +74,6 @@ public class Router {
         return address;
     }
 
-    
-    
 //======================NEIGHBOR METHODS=====================================
     /**
      * Check if an address is a neighbor of a router
@@ -132,8 +130,6 @@ public class Router {
 
     }
 
-    
-    
 //======================COMMUNICATION METHODS=====================================
     /**
      * Send a message directly to a specific router
@@ -176,7 +172,7 @@ public class Router {
             // Process
             m.reduceTimeTolive();
             m.addRouter(this.address);
-            
+
             // Foward message using writeToOuputStream
             sendMessage(m.toString(), nextHopNeighbor);
             System.out.println("Message msg"
@@ -248,8 +244,6 @@ public class Router {
 
     }
 
-    
-    
 //======================DISTANCE VECTOR METHODS=====================================
     /**
      * Run the DV Algorithm
@@ -362,10 +356,13 @@ public class Router {
             DVMessage dvMess = new DVMessage(address, nAdd, dv);
             sendMessage(dvMess.toString(), neighborsCache.get(nAdd));
         }
+
+        if (!liveNeighborAdds.isEmpty()) {
+            System.out.println("Advertise DV to neighbors:");
+            System.out.println(this.getDistVect().debugPrint());
+        }
     }
 
-    
-    
 //======================THREAD CONTROL=====================================
     /**
      * Start all the threads in the router
@@ -396,8 +393,6 @@ public class Router {
         cr.stop();
     }
 
-    
-    
 //======================OTHER METHODS=====================================
     /**
      * Print the distance vector
