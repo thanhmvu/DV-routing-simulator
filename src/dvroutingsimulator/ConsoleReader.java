@@ -94,20 +94,24 @@ public class ConsoleReader implements Runnable {
             int dstPort = Integer.parseInt(fields[2]);
             int newW = Integer.parseInt(fields[3]);
             Address dstAdd = new Address(dstIP, dstPort);
+            
+            if(dstAdd.equals(r.getAddress())){
+                System.out.println("Invalid destination. Router's weight to itself should be 0");
+            } else {
+                try {
+                    // Send weight change to the other neighbor
+                    r.sendWeightMsg(dstAdd, newW);
 
-            try {
-                // Send weight change to the other neighbor
-                r.sendWeightMsg(dstAdd, newW);
-
-                // Update its own weight
-                if (r.updateWeight(new Address(dstIP, dstPort), newW)) {
-                    // if it's a different weight, run DV algorithm and advertise if necessary
-                    if (r.runDVAlgorithm()) {
-                        r.advertiseDV();
+                    // Update its own weight
+                    if (r.updateWeight(new Address(dstIP, dstPort), newW)) {
+                        // if it's a different weight, run DV algorithm and advertise if necessary
+                        if (r.runDVAlgorithm()) {
+                            r.advertiseDV();
+                        }
                     }
+                } catch (IOException ex) {
+                    Logger.getLogger(ConsoleReader.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            } catch (IOException ex) {
-                Logger.getLogger(ConsoleReader.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
