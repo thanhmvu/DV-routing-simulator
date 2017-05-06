@@ -65,6 +65,7 @@ public class ConsoleReader implements Runnable {
         } else {
             String dstIP = fields[1];
             int dstPort = Integer.parseInt(fields[2]);
+            Address dstAdd = new Address(dstIP, dstPort);
 
             StringBuilder msg = new StringBuilder();
             for (int i = 3; i < fields.length; i++) {
@@ -72,7 +73,7 @@ public class ConsoleReader implements Runnable {
             }
 
             try {
-                r.sendContentMsg(dstIP, dstPort, msg.toString());
+                r.sendContentMsg(dstAdd, msg.toString());
             } catch (IOException ex) {
                 Logger.getLogger(ConsoleReader.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -92,10 +93,11 @@ public class ConsoleReader implements Runnable {
             String dstIP = fields[1];
             int dstPort = Integer.parseInt(fields[2]);
             int newW = Integer.parseInt(fields[3]);
+            Address dstAdd = new Address(dstIP, dstPort);
 
             try {
                 // Send weight change to the other neighbor
-                r.sendWeightMsg(dstIP, dstPort, newW);
+                r.sendWeightMsg(dstAdd, newW);
 
                 // Update its own weight
                 if (r.updateWeight(new Address(dstIP, dstPort), newW)) {

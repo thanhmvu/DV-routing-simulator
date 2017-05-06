@@ -197,9 +197,9 @@ public class Router {
      * @param msg the message to send
      * @throws java.io.IOException
      */
-    public void sendContentMsg(String dstIP, int dstPort, String msg) throws IOException {
+    public void sendContentMsg(Address dstAdd, String msg) throws IOException {
         ContentMessage cm = new ContentMessage(this.address.ip, this.address.port,
-                dstIP, dstPort, MAX_TIME_TO_LIVE, msg);
+                dstAdd.ip, dstAdd.port, MAX_TIME_TO_LIVE, msg);
         this.forwardMessage(cm);
     }
 
@@ -211,13 +211,13 @@ public class Router {
      * @param newW the new weight
      * @throws java.io.IOException
      */
-    public void sendWeightMsg(String dstIP, int dstPort, int newW) throws IOException {
+    public void sendWeightMsg(Address dstAdd, int newW) throws IOException {
         // Create the weight message
         WeightMessage wm = new WeightMessage(
-                this.address.ip, this.address.port, dstIP, dstPort, newW);
+                this.address.ip, this.address.port, dstAdd.ip, dstAdd.port, newW);
 
         // Send the message directly to the neighbor
-        this.sendMessage(wm, neighborsCache.get(new Address(dstIP, dstPort)));
+        this.sendMessage(wm, neighborsCache.get(dstAdd));
     }
 
     /**
