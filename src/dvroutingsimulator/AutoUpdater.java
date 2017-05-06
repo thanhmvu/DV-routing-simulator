@@ -15,7 +15,7 @@ public class AutoUpdater implements Runnable {
 
     private final Router r;
     private Timer timer;
-    private final long t;           // period between scheduled tasks
+    static final long T = 10;           // period between scheduled tasks, t seconds
     private long timeCnt;     // time count from beginning of thread to now
 
     /**
@@ -25,7 +25,6 @@ public class AutoUpdater implements Runnable {
      */
     AutoUpdater(Router router) {
         this.r = router;
-        this.t = 20; // t seconds
         this.timeCnt = 0;
     }
 
@@ -39,7 +38,7 @@ public class AutoUpdater implements Runnable {
             @Override
             public void run() {
                 try {
-                    timeCnt += t;
+                    timeCnt += T;
                     r.advertiseDV();
 
                     //debug print
@@ -49,7 +48,7 @@ public class AutoUpdater implements Runnable {
                     Logger.getLogger(AutoUpdater.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }, 0, t * 1000);
+        }, 0, T * 1000);
     }
 
     /**

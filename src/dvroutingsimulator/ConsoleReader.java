@@ -19,6 +19,7 @@ public class ConsoleReader implements Runnable {
     Scanner sc;
     boolean running;
     Router r;
+    private static final String DLM = " ";
 
     public ConsoleReader(Router r) {
         this.r = r;
@@ -29,7 +30,7 @@ public class ConsoleReader implements Runnable {
     public void run() {
         running = true;
         while (running) {
-            String[] tmp = sc.nextLine().split(" ");
+            String[] tmp = sc.nextLine().split(DLM);
             if (tmp.length < 1) {
                 System.out.println("No command found!");
             } else if (tmp[0].equals("PRINT")) {
@@ -58,7 +59,7 @@ public class ConsoleReader implements Runnable {
      */
     public void msg(String[] fields) {
         if (fields.length < 4) {
-            System.out.println("Missing fields. Required: MSG <dst-ip> <dst-port> <msg>");
+            System.out.println("Missing fields. Required: MSG"+DLM+"<dst-ip>"+DLM+"<dst-port>"+DLM+"<msg>");
         } else {
             String dstIP = fields[1];
             int dstPort = Integer.parseInt(fields[2]);
@@ -84,7 +85,7 @@ public class ConsoleReader implements Runnable {
      */
     public void change(String[] fields) {
         if (fields.length < 4) {
-            System.out.println("Missing fields. Required: CHANGE <dst-ip> <dst-port> <new-weight>");
+            System.out.println("Missing fields. Required: CHANGE"+DLM+"<dst-ip>"+DLM+"<dst-port>"+DLM+"<new-weight>");
         } else {
             String dstIP = fields[1];
             int dstPort = Integer.parseInt(fields[2]);

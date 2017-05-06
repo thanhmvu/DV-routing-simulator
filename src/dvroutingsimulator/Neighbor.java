@@ -15,7 +15,7 @@ class Neighbor {
     private int w;
     private Timer timer;
     private int n = 3;
-    private final long t = 20;
+    private final long t = AutoUpdater.T;
     private final Router r;
 
     /**
