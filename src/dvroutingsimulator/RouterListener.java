@@ -70,7 +70,7 @@ public class RouterListener implements Runnable {
                 ContentMessage cMsg = new ContentMessage(protocol);
 
                 //if router is the recipient
-                if (cMsg.getDstAddress() == r.getAddress()) {
+                if (cMsg.getDstAddress().equals(r.getAddress())) {
                     r.debugPrintReceiveMsg(cMsg);
                 } else { //else if message should be forwarded
                     r.forwardMessage(cMsg);
