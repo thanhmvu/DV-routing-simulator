@@ -45,6 +45,7 @@ public class ContentMessage extends Message {
      */
     public ContentMessage(String text) {
         super(text);
+        System.out.println("Incoming protocol: "+ text);
         if (this.type != MsgType.CONTENT) {
             System.out.println("ERROR: Not a CONTENT Type.");
             return;
@@ -62,7 +63,8 @@ public class ContentMessage extends Message {
         if (fields.length > 7) {
             for (String address : fields[7].split(pDLM)) {
                 String[] tmp = address.split(iDLM);
-                this.path.add(new Address(tmp[0], Integer.parseInt(tmp[1])));
+                Address path_router = new Address(tmp[0], Integer.parseInt(tmp[1]));
+                addRouter(path_router);
             }
         }
     }
@@ -73,8 +75,8 @@ public class ContentMessage extends Message {
      * @param ip the router's IP address
      * @param port the router's port number
      */
-    public void addRouter(String ip, int port) {
-        path.add(new Address(ip, port));
+    public void addRouter(Address r) {
+        path.add(r);
     }
 
     /**

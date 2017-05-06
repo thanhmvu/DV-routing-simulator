@@ -143,13 +143,13 @@ public class Router {
      * @throws java.net.SocketException
      * @throws java.net.UnknownHostException
      */
-    private void sendMessage(Message m, Neighbor neighbor) throws IOException {
+    private void sendMessage(String m, Neighbor neighbor) throws IOException {
         try (DatagramSocket socket = new DatagramSocket()) {
             InetAddress dstIP = InetAddress.getByName(neighbor.getAddress().ip);
             int dstPort = neighbor.getAddress().port;
 
             // Put message in a packet
-            byte[] sendData = m.toString().getBytes();
+            byte[] sendData = m.getBytes();
             DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, dstIP, dstPort);
 
             // Write to output stream
@@ -173,9 +173,12 @@ public class Router {
                 return;
             }
 
-            // Foward message using writeToOuputStream
+            // Process
             m.reduceTimeTolive();
-            sendMessage(m, nextHopNeighbor);
+            m.addRouter(this.address);
+            
+            // Foward message using writeToOuputStream
+            sendMessage(m.toString(), nextHopNeighbor);
             System.out.println("Message msg"
                     + " from " + m.getSrcAddress().toString()
                     + " to " + m.getDstAddress().toString()
@@ -217,7 +220,7 @@ public class Router {
                 this.address.ip, this.address.port, dstAdd.ip, dstAdd.port, newW);
 
         // Send the message directly to the neighbor
-        this.sendMessage(wm, neighborsCache.get(dstAdd));
+        this.sendMessage(wm.toString(), neighborsCache.get(dstAdd));
     }
 
     /**
@@ -357,7 +360,7 @@ public class Router {
     public void advertiseDV() throws IOException {
         for (Address nAdd : liveNeighborAdds) {
             DVMessage dvMess = new DVMessage(address, nAdd, dv);
-            sendMessage(dvMess, neighborsCache.get(nAdd));
+            sendMessage(dvMess.toString(), neighborsCache.get(nAdd));
         }
     }
 
