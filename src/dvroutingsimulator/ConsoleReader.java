@@ -69,7 +69,7 @@ public class ConsoleReader implements Runnable {
 
             StringBuilder msg = new StringBuilder();
             for (int i = 3; i < fields.length; i++) {
-                msg.append(fields[i]);
+                msg.append(fields[i]+" ");
             }
 
             try {
@@ -98,6 +98,7 @@ public class ConsoleReader implements Runnable {
             if(dstAdd.equals(r.getAddress())){
                 System.out.println("Invalid destination. Router's weight to itself should be 0");
             } else {
+                System.out.println("new weight to neighbor "+dstAdd.toString()+" of "+newW);
                 try {
                     // Send weight change to the other neighbor
                     r.sendWeightMsg(dstAdd, newW);
