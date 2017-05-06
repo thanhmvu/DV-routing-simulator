@@ -123,6 +123,7 @@ public class Router {
      */
     public void dropNeighbor(Address a) {
         liveNeighborAdds.remove(a);
+        dv.removeDistance(a);
         Neighbor n = neighborsCache.get(a);
         n.stopTimer();
         System.out.println("neighbor " + a.toString() + " dropped");
