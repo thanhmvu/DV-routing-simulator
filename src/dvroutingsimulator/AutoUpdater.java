@@ -39,10 +39,11 @@ public class AutoUpdater implements Runnable {
             public void run() {
                 try {
                     timeCnt += T;
-                    r.advertiseDV();
-
                     //debug print
                     System.out.println("Update sent to all neighbors at time " + timeCnt);
+                    r.advertiseDV();
+
+                    
                     
                 } catch (IOException ex) {
                     Logger.getLogger(AutoUpdater.class.getName()).log(Level.SEVERE, null, ex);
