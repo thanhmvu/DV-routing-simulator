@@ -40,7 +40,7 @@ public class RouterListener implements Runnable {
                 byte[] receiveData = new byte[maxSize];
                 DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                 listeningSocket.receive(receivePacket);
-                String protocol = new String(receivePacket.getData());
+                String protocol = new String(receivePacket.getData()).trim();
                 this.handleProtocol(protocol);
             }
         } catch (SocketException ex) {
