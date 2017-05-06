@@ -74,6 +74,8 @@ public class Router {
         return address;
     }
 
+    
+    
 //======================NEIGHBOR METHODS=====================================
     /**
      * Check if an address is a neighbor of a router
@@ -130,6 +132,8 @@ public class Router {
 
     }
 
+    
+    
 //======================COMMUNICATION METHODS=====================================
     /**
      * Send a message directly to a specific router
@@ -241,6 +245,8 @@ public class Router {
 
     }
 
+    
+    
 //======================DISTANCE VECTOR METHODS=====================================
     /**
      * Run the DV Algorithm
@@ -355,6 +361,8 @@ public class Router {
         }
     }
 
+    
+    
 //======================THREAD CONTROL=====================================
     /**
      * Start all the threads in the router
@@ -385,6 +393,8 @@ public class Router {
         cr.stop();
     }
 
+    
+    
 //======================OTHER METHODS=====================================
     /**
      * Print the distance vector

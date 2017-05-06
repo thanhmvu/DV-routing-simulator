@@ -36,4 +36,8 @@ public class Address {
     public String toString() {
         return ip + DLM + port;
     }
+    
+    public Address deepClone(){
+        return new Address(ip, port);
+    }
 }

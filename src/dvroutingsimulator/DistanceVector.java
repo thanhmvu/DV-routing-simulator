@@ -145,7 +145,7 @@ public class DistanceVector {
     DistanceVector deepCopy() {
         DistanceVector newDV = new DistanceVector();
         for (Entry<Address, Integer> s: dvMap.entrySet()) {
-            newDV.dvMap.put(s.getKey(), s.getValue());
+            newDV.dvMap.put(s.getKey().deepClone(), s.getValue());
         }
         return newDV;
     }
