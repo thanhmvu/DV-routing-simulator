@@ -91,7 +91,7 @@ public class RouterListener implements Runnable {
 
                 if (r.updateDV(dMsg.getSrcAddress(), dMsg.getDistVect())) {
                     if (r.runDVAlgorithm()) {
-                        r.advertiseDV();
+                        r.advertiseDV(false);
                     }
                 }
                 return;
@@ -109,7 +109,7 @@ public class RouterListener implements Runnable {
                 else {
                     if (r.updateWeight(wMsg.getSrcAddress(), wMsg.getWeight())) {
                         if (r.runDVAlgorithm()) {
-                            r.advertiseDV();
+                            r.advertiseDV(false);
                         }
                     }
                 }

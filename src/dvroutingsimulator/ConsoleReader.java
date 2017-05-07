@@ -111,7 +111,7 @@ public class ConsoleReader implements Runnable {
                     if (r.updateWeight(new Address(dstIP, dstPort), newW)) {
                         // if it's a different weight, run DV algorithm and advertise if necessary
                         if (r.runDVAlgorithm()) {
-                            r.advertiseDV();
+                            r.advertiseDV(false);
                         }
                     }
                 } catch (IOException ex) {

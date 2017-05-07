@@ -108,7 +108,7 @@ public class Router {
 
         //run the DV algorithm, and advertise if updated
         if (runDVAlgorithm()) {
-            advertiseDV();
+            advertiseDV(false);
         }
     }
 
@@ -372,7 +372,7 @@ public class Router {
      *
      * @throws IOException
      */
-    public void advertiseDV() throws IOException {
+    public void advertiseDV(boolean isAutoUpdate) throws IOException {
 
         //if activated poison reverse, remove distance from addresses not present in forward table
         if (reverse) {
@@ -392,7 +392,7 @@ public class Router {
                 sendMessage(dvMess.toString(), neighborsCache.get(neiAdd));
 
                 String printout = "Update sent to neighbor " + neiAdd.toString();
-                if (au != null) {
+                if (isAutoUpdate && au != null) {
                     printout += " at time " + au.getCurrentTime();
                 }
                 System.out.println(printout);
@@ -407,7 +407,7 @@ public class Router {
             }
             if (!liveNeighborAdds.isEmpty()) {
                 String printout = "Update sent to all neighbors";
-                if (au != null) {
+                if (isAutoUpdate && au != null) {
                     printout += " at time " + au.getCurrentTime();
                 }
                 System.out.println(printout);

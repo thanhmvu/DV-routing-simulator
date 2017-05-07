@@ -39,7 +39,7 @@ public class AutoUpdater implements Runnable {
             public void run() {
                 try {
                     timeCnt += T;
-                    r.advertiseDV();
+                    r.advertiseDV(true);
 
                 } catch (IOException ex) {
                     Logger.getLogger(AutoUpdater.class.getName()).log(Level.SEVERE, null, ex);
