@@ -452,6 +452,9 @@ public class Router {
         rl.stop();
         au.stop();
         cr.stop();
+        for (Neighbor n: neighborsCache.values()) {
+            n.stopTimer();
+        }
         System.exit(0);
     }
 
