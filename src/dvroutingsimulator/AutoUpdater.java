@@ -39,8 +39,6 @@ public class AutoUpdater implements Runnable {
             public void run() {
                 try {
                     timeCnt += T;
-                    //debug print
-                    System.out.println("Update sent to all neighbors at time " + timeCnt);
                     r.advertiseDV();
 
                     
@@ -58,5 +56,9 @@ public class AutoUpdater implements Runnable {
     public void stop() {
         timer.cancel();
         timeCnt = 0;
+    }
+    
+    public long getCurrentTime(){
+        return timeCnt;
     }
 }

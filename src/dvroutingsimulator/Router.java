@@ -360,7 +360,11 @@ public class Router {
                 DVMessage dvMess = new DVMessage(address, neiAdd, dvToSend);
                 sendMessage(dvMess.toString(), neighborsCache.get(neiAdd));
 
-                System.out.println("Advertise dv update to neighbor " + neiAdd.toString());
+                String printout = "Update sent to neighbor " + neiAdd.toString();
+                if(au != null){
+                    printout += " at time " + au.getCurrentTime();
+                }
+                System.out.println(printout);
                 System.out.println(dvToSend.debugPrint());
 
             }
@@ -371,7 +375,11 @@ public class Router {
                 sendMessage(dvMess.toString(), neighborsCache.get(neiAdd));
             }
             if (!liveNeighborAdds.isEmpty()) {
-                System.out.println("Advertise dv update to all neighbors:");
+                String printout = "Update sent to all neighbors";
+                if(au != null){
+                    printout += " at time " + au.getCurrentTime();
+                }
+                System.out.println(printout);
                 System.out.println(dv.debugPrint());
             }
         }
