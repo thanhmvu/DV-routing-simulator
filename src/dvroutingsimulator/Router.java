@@ -178,7 +178,7 @@ public class Router {
             System.out.println("Message msg"
                     + " from " + m.getSrcAddress().toString()
                     + " to " + m.getDstAddress().toString()
-                    + " forwarded to " + nextHopNeighbor.toString()
+                    + " forwarded to " + nextHopNeighbor.getAddress().toString()
                     + "\nmsg(" + m.getMessage() + ")");
         } else {
             System.out.println("Message msg"

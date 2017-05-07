@@ -45,7 +45,7 @@ public class ContentMessage extends Message {
      */
     public ContentMessage(String text) {
         super(text);
-        System.out.println("Incoming protocol: "+ text);
+//        System.out.println("Incoming protocol: "+ text);
         if (this.type != MsgType.CONTENT) {
             System.out.println("ERROR: Not a CONTENT Type.");
             return;
