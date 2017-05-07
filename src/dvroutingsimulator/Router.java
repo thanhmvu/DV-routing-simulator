@@ -370,6 +370,7 @@ public class Router {
     /**
      * Advertise distance vectors to neighbors
      *
+     * @param isAutoUpdate If this function is called from AutoUpdater or not
      * @throws IOException
      */
     public void advertiseDV(boolean isAutoUpdate) throws IOException {
