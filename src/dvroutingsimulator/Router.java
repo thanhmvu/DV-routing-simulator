@@ -137,6 +137,31 @@ public class Router {
 
     }
 
+    /**
+     * Restart the timer every time a DV update is received
+     *
+     * @param neiAdd
+     */
+    public void restartNeighborTimer(Address neiAdd) {
+        Neighbor n = neighborsCache.get(neiAdd);
+        if (n != null) {
+            n.restartTimer();
+        }
+    }
+
+    /**
+     * Print the neighbor's distance vectors
+     */
+    public void printNeighborsDV() {
+        for (Address nAdd : liveNeighborAdds) {
+            if (!nAdd.equals(address)) {
+                Neighbor nei = neighborsCache.get(nAdd);
+                System.out.println(nei.getAddress().toString()
+                        + ": " + nei.getDistVector().toString());
+            }
+        }
+    }
+
 //======================COMMUNICATION METHODS=====================================
     /**
      * Send a message directly to a specific router
@@ -391,6 +416,13 @@ public class Router {
         }
     }
 
+    /**
+     * Print the distance vector
+     */
+    public void printDistVect() {
+        System.out.println("This router: " + dv.toString());
+    }
+
 //======================THREAD CONTROL=====================================
     /**
      * Start all the threads in the router
@@ -419,48 +451,6 @@ public class Router {
         rl.stop();
         au.stop();
         cr.stop();
-    }
-
-//======================OTHER METHODS=====================================
-    /**
-     * Print the distance vector
-     */
-    public void printDistVect() {
-        System.out.println("This router: " + dv.toString());
-    }
-
-    /**
-     * Print the neighbor's distance vectors
-     */
-    public void printNeighborsDV() {
-        for (Address nAdd : liveNeighborAdds) {
-            if (!nAdd.equals(address)) {
-                Neighbor nei = neighborsCache.get(nAdd);
-                System.out.println(nei.getAddress().toString()
-                        + ": " + nei.getDistVector().toString());
-            }
-        }
-    }
-
-    /**
-     * Restart the timer every time a DV update is received
-     *
-     * @param neiAdd
-     */
-    public void restartNeighborTimer(Address neiAdd) {
-        Neighbor n = neighborsCache.get(neiAdd);
-        if (n != null) {
-            n.restartTimer();
-        }
-    }
-
-    /**
-     * Get the distance vector of this router
-     *
-     * @return The distance vector of this router
-     */
-    public DistanceVector getDistVect() {
-        return dv;
     }
 
 //======================MAIN METHODS=====================================
