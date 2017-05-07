@@ -23,7 +23,6 @@ public class RouterListener implements Runnable {
      * @param router The router on which the thread runs
      */
     RouterListener(Router router) {
-        super();
         this.r = router;
         running = true;
     }
