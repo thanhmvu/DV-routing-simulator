@@ -343,26 +343,37 @@ public class Router {
      */
     public void advertiseDV() throws IOException {
 
-        DistanceVector dvToSend = dv.deepCopy();
-
         //if activated poison reverse, remove distance from addresses not present in forward table
         if (reverse) {
-            for (Address destAdd : forwardTable.keySet()) {
-                Neighbor nextHop = forwardTable.get(destAdd);
-                if (!destAdd.equals(nextHop.getAddress())) {
-                    dvToSend.removeDistance(destAdd);
+
+            for (Address neiAdd : liveNeighborAdds) {
+                DistanceVector dvToSend = dv.deepCopy();
+
+                for (Address destAdd : forwardTable.keySet()) {
+                    Address nextHopAdd = forwardTable.get(destAdd).getAddress();
+                    if (nextHopAdd.equals(neiAdd)
+                            && !destAdd.equals(nextHopAdd)) {
+                        dvToSend.removeDistance(destAdd);
+                    }
                 }
+
+                DVMessage dvMess = new DVMessage(address, neiAdd, dvToSend);
+                sendMessage(dvMess.toString(), neighborsCache.get(neiAdd));
+
+                System.out.println("Advertise dv update to neighbor " + neiAdd.toString());
+                System.out.println(dvToSend.debugPrint());
+
             }
-        }
-
-        for (Address nAdd : liveNeighborAdds) {
-            DVMessage dvMess = new DVMessage(address, nAdd, dvToSend);
-            sendMessage(dvMess.toString(), neighborsCache.get(nAdd));
-        }
-
-        if (!liveNeighborAdds.isEmpty()) {
-            System.out.println("Advertise DV to neighbors:");
-            System.out.println(dvToSend.debugPrint());
+        } else {
+            for (Address neiAdd : liveNeighborAdds) {
+                DistanceVector dvToSend = dv.deepCopy();
+                DVMessage dvMess = new DVMessage(address, neiAdd, dvToSend);
+                sendMessage(dvMess.toString(), neighborsCache.get(neiAdd));
+            }
+            if (!liveNeighborAdds.isEmpty()) {
+                System.out.println("Advertise dv update to all neighbors:");
+                System.out.println(dv.debugPrint());
+            }
         }
     }
 
