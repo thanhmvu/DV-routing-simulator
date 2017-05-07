@@ -452,6 +452,7 @@ public class Router {
         rl.stop();
         au.stop();
         cr.stop();
+        System.exit(0);
     }
 
 //======================MAIN METHODS=====================================
