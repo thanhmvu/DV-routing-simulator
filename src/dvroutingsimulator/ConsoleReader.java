@@ -1,4 +1,3 @@
-
 package dvroutingsimulator;
 
 import java.io.IOException;
@@ -8,6 +7,7 @@ import java.util.logging.Logger;
 
 /**
  * Read user input from the console and perform actions accordingly
+ *
  * @author thanhvu
  */
 public class ConsoleReader implements Runnable {
@@ -19,6 +19,7 @@ public class ConsoleReader implements Runnable {
 
     /**
      * Create a thread that reads from the terminal
+     *
      * @param r The router this thread is bound to
      */
     public ConsoleReader(Router r) {
@@ -26,9 +27,9 @@ public class ConsoleReader implements Runnable {
         sc = new Scanner(System.in);
         running = false;
     }
-    
+
     /**
-     * Run the thread in a loop 
+     * Run the thread in a loop
      */
     @Override
     public void run() {
@@ -43,6 +44,8 @@ public class ConsoleReader implements Runnable {
                 msg(tmp);
             } else if (tmp[0].equalsIgnoreCase("CHANGE")) {
                 change(tmp);
+            } else if (tmp[0].equalsIgnoreCase("STOP")) {
+                r.stop();
             } else {
                 System.out.println("Wrong command format!");
             }
@@ -65,7 +68,7 @@ public class ConsoleReader implements Runnable {
      */
     public void msg(String[] fields) {
         if (fields.length < 4) {
-            System.out.println("Missing fields. Required: MSG"+DLM+"<dst-ip>"+DLM+"<dst-port>"+DLM+"<msg>");
+            System.out.println("Missing fields. Required: MSG" + DLM + "<dst-ip>" + DLM + "<dst-port>" + DLM + "<msg>");
         } else {
             String dstIP = fields[1];
             int dstPort = Integer.parseInt(fields[2]);
@@ -92,17 +95,17 @@ public class ConsoleReader implements Runnable {
      */
     public void change(String[] fields) {
         if (fields.length < 4) {
-            System.out.println("Missing fields. Required: CHANGE"+DLM+"<dst-ip>"+DLM+"<dst-port>"+DLM+"<new-weight>");
+            System.out.println("Missing fields. Required: CHANGE" + DLM + "<dst-ip>" + DLM + "<dst-port>" + DLM + "<new-weight>");
         } else {
             String dstIP = fields[1];
             int dstPort = Integer.parseInt(fields[2]);
             int newW = Integer.parseInt(fields[3]);
             Address dstAdd = new Address(dstIP, dstPort);
-            
-            if(dstAdd.equals(r.getAddress())){
+
+            if (dstAdd.equals(r.getAddress())) {
                 System.out.println("Invalid destination. Router's weight to itself should be 0");
             } else {
-                System.out.println("new weight to neighbor "+dstAdd.toString()+" of "+newW);
+                System.out.println("new weight to neighbor " + dstAdd.toString() + " of " + newW);
                 try {
                     // Send weight change to the other neighbor
                     r.sendWeightMsg(dstAdd, newW);
