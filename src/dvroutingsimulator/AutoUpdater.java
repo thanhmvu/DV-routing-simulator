@@ -15,7 +15,7 @@ public class AutoUpdater implements Runnable {
 
     private final Router r;
     private Timer timer;
-    static final long T = 10;           // period between scheduled tasks, t seconds
+    static final long T = 20;           // period between scheduled tasks, t seconds
     private long timeCnt;     // time count from beginning of thread to now
 
     /**

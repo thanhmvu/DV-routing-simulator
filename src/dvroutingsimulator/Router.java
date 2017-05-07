@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -457,4 +461,56 @@ public class Router {
         return dv;
     }
 
+    
+//======================MAIN METHODS=====================================
+    /**
+     * Run the program
+     * @param args Command line argument, format "[-reverse] filePath.txt"
+     */
+    public static void main(String[] args) {
+        if (args.length < 1) {
+            System.out.println("Need at least 1 argument. Format: [-reverse] [filepath]");
+            return;
+        }
+        
+        boolean reverse = false;
+        String path = null;
+        for (String arg: args) {
+            if (arg.equals("-reverse")) {
+                reverse = true;
+            } else {
+                path = arg;
+            }
+        }
+        
+        if (path == null) {
+            System.out.println("Need to insert a filePath. Format: [-reverse] [filepath]");
+            return;
+        }
+        
+        Router r = null;
+        Path neighborsFilePath = Paths.get(path);
+        try {
+            // Read file and create a router
+            List<String> allLines = Files.readAllLines(neighborsFilePath);
+            String myAddress = allLines.get(0);
+            String[] myFields = myAddress.split(" ");
+            String myIp = myFields[0];
+            int myPort = Integer.parseInt(myFields[1]);
+            r = new Router(myIp, myPort, reverse);
+            
+            // Iterate through and add its neighbors
+            for (int i = 1; i < allLines.size(); i++) {
+                String[] fields = allLines.get(i).split(" ");
+                String ip = fields[0];
+                int port = Integer.parseInt(fields[1]);
+                int weight = Integer.parseInt(fields[2]);
+                r.addNeighbor(new Address(ip, port), weight);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        if (r != null) r.startAllThreads();
+    }
 }

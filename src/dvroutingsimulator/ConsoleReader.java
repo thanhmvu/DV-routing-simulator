@@ -73,7 +73,7 @@ public class ConsoleReader implements Runnable {
             }
 
             try {
-                r.sendContentMsg(dstAdd, msg.toString());
+                r.sendContentMsg(dstAdd, msg.toString().trim());
             } catch (IOException ex) {
                 Logger.getLogger(ConsoleReader.class.getName()).log(Level.SEVERE, null, ex);
             }
