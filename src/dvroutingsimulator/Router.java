@@ -10,8 +10,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,12 +59,6 @@ public class Router {
         neighborsCache = new ConcurrentHashMap<>();
         dv = new DistanceVector();
 
-//        try {
-//            addNeighbor(address, 0);
-//
-//        } catch (IOException ex) {
-//            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
-//        }
     }
 
     /**
@@ -126,10 +118,21 @@ public class Router {
      * @param a A neighbor address
      */
     public void dropNeighbor(Address a) {
-        liveNeighborAdds.remove(a);
-        dv.removeDistance(a);
         Neighbor n = neighborsCache.get(a);
-        n.stopTimer();
+
+        liveNeighborAdds.remove(a); // remove neighbor from list of live neighbor addresses
+        dv.removeDistance(a); // remove neighbor from distance vector
+        n.stopTimer(); // stop timer for this neighbor
+
+        // remove neighbor as a potential nexthop neighbor in forwarding table
+        forwardTable.remove(a);
+        for (Address destAdd : forwardTable.keySet()) {
+            if (forwardTable.get(destAdd).equals(n)) {
+                forwardTable.remove(destAdd);
+            }
+        }
+
+        // debug print to System.out
         System.out.println("neighbor " + a.toString() + " dropped");
 
     }
@@ -161,6 +164,7 @@ public class Router {
      * Forward a content message to the right destination
      *
      * @param m The message to be forwarded
+     * @throws java.io.IOException
      */
     public void forwardMessage(ContentMessage m) throws IOException {
         //check time to live
@@ -195,8 +199,7 @@ public class Router {
     /**
      * Send a content message to a specific router
      *
-     * @param dstIP destination IP
-     * @param dstPort destination port
+     * @param dstAdd The destination address
      * @param msg the message to send
      * @throws java.io.IOException
      */
@@ -209,8 +212,7 @@ public class Router {
     /**
      * Send a weight message directly to a neighbor
      *
-     * @param dstIP destination IP of the neighbor
-     * @param dstPort destination port of the neighbor
+     * @param dstAdd The destination address
      * @param newW the new weight
      * @throws java.io.IOException
      */
@@ -310,7 +312,7 @@ public class Router {
      * @param weight The weight of the new link
      * @return true if is updated, false if no change
      */
-    public boolean updateWeight(Address nAdd, int weight) throws IOException {
+    public boolean updateWeight(Address nAdd, int weight) {
         Neighbor n = neighborsCache.get(nAdd);
 
         int currWeight = n.getLinkWeight();
@@ -365,7 +367,7 @@ public class Router {
                 sendMessage(dvMess.toString(), neighborsCache.get(neiAdd));
 
                 String printout = "Update sent to neighbor " + neiAdd.toString();
-                if(au != null){
+                if (au != null) {
                     printout += " at time " + au.getCurrentTime();
                 }
                 System.out.println(printout);
@@ -380,7 +382,7 @@ public class Router {
             }
             if (!liveNeighborAdds.isEmpty()) {
                 String printout = "Update sent to all neighbors";
-                if(au != null){
+                if (au != null) {
                     printout += " at time " + au.getCurrentTime();
                 }
                 System.out.println(printout);
@@ -461,10 +463,10 @@ public class Router {
         return dv;
     }
 
-    
 //======================MAIN METHODS=====================================
     /**
      * Run the program
+     *
      * @param args Command line argument, format "[-reverse] filePath.txt"
      */
     public static void main(String[] args) {
@@ -472,22 +474,22 @@ public class Router {
             System.out.println("Need at least 1 argument. Format: [-reverse] [filepath]");
             return;
         }
-        
+
         boolean reverse = false;
         String path = null;
-        for (String arg: args) {
+        for (String arg : args) {
             if (arg.equals("-reverse")) {
                 reverse = true;
             } else {
                 path = arg;
             }
         }
-        
+
         if (path == null) {
             System.out.println("Need to insert a filePath. Format: [-reverse] [filepath]");
             return;
         }
-        
+
         Router r = null;
         Path neighborsFilePath = Paths.get(path);
         try {
@@ -498,7 +500,7 @@ public class Router {
             String myIp = myFields[0];
             int myPort = Integer.parseInt(myFields[1]);
             r = new Router(myIp, myPort, reverse);
-            
+
             // Iterate through and add its neighbors
             for (int i = 1; i < allLines.size(); i++) {
                 String[] fields = allLines.get(i).split(" ");
@@ -510,7 +512,9 @@ public class Router {
         } catch (IOException ex) {
             Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        if (r != null) r.startAllThreads();
+
+        if (r != null) {
+            r.startAllThreads();
+        }
     }
 }

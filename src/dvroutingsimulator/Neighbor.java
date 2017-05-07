@@ -1,4 +1,3 @@
-
 package dvroutingsimulator;
 
 import java.util.Timer;
@@ -14,7 +13,7 @@ class Neighbor {
     private DistanceVector dv;
     private int w;
     private Timer timer;
-    private int n = 3;
+    private static final int n = 3;
     private final long t = AutoUpdater.T;
     private final Router r;
 
@@ -34,8 +33,8 @@ class Neighbor {
     }
 
     /**
-     * Restart the timer if it's already started. The task is a drop
-     * neighbor task
+     * Restart the timer if it's already started. The task is a drop neighbor
+     * task
      */
     final void restartTimer() {
         timer.cancel();
@@ -57,24 +56,49 @@ class Neighbor {
         timer.cancel();
     }
 
+    /**
+     * Get the distance vector of this neighbor
+     *
+     * @return The distance vector of this neighbor
+     */
     DistanceVector getDistVector() {
         return dv;
     }
 
+    /**
+     * Set the distance vector to a new one
+     *
+     * @param dv The update distance vector
+     */
     void setDistVector(DistanceVector dv) {
         this.dv = dv;
     }
 
+    /**
+     * Get the link weight between the router and this neighbor
+     *
+     * @return the link weight between the router and this neighbor
+     */
     int getLinkWeight() {
         return w;
     }
 
+    /**
+     * Set the link weight to another value
+     *
+     * @param weight the update link weight
+     */
+    void setLinkWeight(int weight) {
+        this.w = weight;
+    }
+
+    /**
+     * Retrieve the address of this neighbor router
+     *
+     * @return the address of this neighbor router
+     */
     Address getAddress() {
         return a;
     }
 
-    void setLinkWeight(int weight) {
-        this.w = weight;
-    }
-    
 }

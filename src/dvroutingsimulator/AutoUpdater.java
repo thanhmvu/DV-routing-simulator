@@ -41,8 +41,6 @@ public class AutoUpdater implements Runnable {
                     timeCnt += T;
                     r.advertiseDV();
 
-                    
-                    
                 } catch (IOException ex) {
                     Logger.getLogger(AutoUpdater.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -57,8 +55,12 @@ public class AutoUpdater implements Runnable {
         timer.cancel();
         timeCnt = 0;
     }
-    
-    public long getCurrentTime(){
+
+    /**
+     * Get the time last auto updated
+     * @return The time count for auto update
+     */
+    public long getCurrentTime() {
         return timeCnt;
     }
 }

@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package dvroutingsimulator;
 
 import java.io.IOException;
@@ -11,22 +7,30 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * Read user input from the console and perform actions accordingly
  * @author thanhvu
  */
 public class ConsoleReader implements Runnable {
 
-    Scanner sc;
-    boolean running;
-    Router r;
+    private final Scanner sc;
+    private volatile boolean running;
+    private final Router r;
     private static final String DLM = " ";
 
+    /**
+     * Create a thread that reads from the terminal
+     * @param r The router this thread is bound to
+     */
     public ConsoleReader(Router r) {
         this.r = r;
         sc = new Scanner(System.in);
         running = false;
     }
-
+    
+    /**
+     * Run the thread in a loop 
+     */
+    @Override
     public void run() {
         running = true;
         while (running) {
@@ -69,7 +73,7 @@ public class ConsoleReader implements Runnable {
 
             StringBuilder msg = new StringBuilder();
             for (int i = 3; i < fields.length; i++) {
-                msg.append(fields[i]+" ");
+                msg.append(fields[i]).append(" ");
             }
 
             try {
