@@ -283,16 +283,6 @@ public class Router {
             }
         }
 
-        //if activated poison reverse, remove distance from addresses not present in forward table
-        if (reverse) {
-            for (Address destAdd : forwardTable.keySet()) {
-                Neighbor fwdNeighbor = forwardTable.get(destAdd);
-                if (!destAdd.equals(fwdNeighbor.getAddress())) {
-                    dv.removeDistance(destAdd);
-                }
-            }
-        }
-
         boolean isChanged = !oldDV.equals(dv);
 
         //debug print to System.out
@@ -352,14 +342,27 @@ public class Router {
      * @throws IOException
      */
     public void advertiseDV() throws IOException {
+
+        DistanceVector dvToSend = dv.deepCopy();
+
+        //if activated poison reverse, remove distance from addresses not present in forward table
+        if (reverse) {
+            for (Address destAdd : forwardTable.keySet()) {
+                Neighbor nextHop = forwardTable.get(destAdd);
+                if (!destAdd.equals(nextHop.getAddress())) {
+                    dvToSend.removeDistance(destAdd);
+                }
+            }
+        }
+
         for (Address nAdd : liveNeighborAdds) {
-            DVMessage dvMess = new DVMessage(address, nAdd, dv);
+            DVMessage dvMess = new DVMessage(address, nAdd, dvToSend);
             sendMessage(dvMess.toString(), neighborsCache.get(nAdd));
         }
 
         if (!liveNeighborAdds.isEmpty()) {
             System.out.println("Advertise DV to neighbors:");
-            System.out.println(this.getDistVect().debugPrint());
+            System.out.println(dvToSend.debugPrint());
         }
     }
 
