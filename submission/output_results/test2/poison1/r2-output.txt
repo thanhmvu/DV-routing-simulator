@@ -1,0 +1,252 @@
+r2
+run:
+new dv calculated:
+127.0.0.1:10001 4 127.0.0.1:10001
+Advertise DV to neighbors:				
+127.0.0.1:10001 4
+new dv calculated:
+127.0.0.1:10003 1 127.0.0.1:10003
+127.0.0.1:10001 4 127.0.0.1:10001
+Advertise DV to neighbors:
+127.0.0.1:10003 1
+127.0.0.1:10001 4
+Update sent to all neighbors at time 10
+Advertise DV to neighbors:
+127.0.0.1:10003 1
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 1
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 1
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10001	// good poison
+127.0.0.1:10002 4
+Update sent to all neighbors at time 20
+Advertise DV to neighbors:
+127.0.0.1:10003 1
+127.0.0.1:10001 4
+
+new dv received from 127.0.0.1:10003	// good poison
+127.0.0.1:10002 1
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 1
+new dv received from 127.0.0.1:10001	// good poison
+127.0.0.1:10002 4
+Update sent to all neighbors at time 30
+Advertise DV to neighbors:
+127.0.0.1:10003 1
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 1
+new dv received from 127.0.0.1:10001
+127.0.0.1:10002 4
+Update sent to all neighbors at time 40
+Advertise DV to neighbors:
+127.0.0.1:10003 1
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 1
+new dv received from 127.0.0.1:10001
+127.0.0.1:10002 4
+Update sent to all neighbors at time 50
+Advertise DV to neighbors:
+127.0.0.1:10003 1
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 1
+new dv received from 127.0.0.1:10001
+127.0.0.1:10002 4
+Update sent to all neighbors at time 60
+Advertise DV to neighbors:
+127.0.0.1:10003 1
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 1
+new dv received from 127.0.0.1:10001
+127.0.0.1:10002 4
+Update sent to all neighbors at time 70
+Advertise DV to neighbors:
+127.0.0.1:10003 1
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 1
+new dv received from 127.0.0.1:10001
+127.0.0.1:10002 4
+Update sent to all neighbors at time 80
+Advertise DV to neighbors:
+127.0.0.1:10003 1
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 1
+new dv received from 127.0.0.1:10001
+127.0.0.1:10002 4
+Update sent to all neighbors at time 90
+Advertise DV to neighbors:
+127.0.0.1:10003 1
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 1
+new dv received from 127.0.0.1:10001
+127.0.0.1:10002 4
+Update sent to all neighbors at time 100
+Advertise DV to neighbors:
+127.0.0.1:10003 1
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 1
+new dv received from 127.0.0.1:10001
+127.0.0.1:10002 4
+Update sent to all neighbors at time 110
+Advertise DV to neighbors:
+127.0.0.1:10003 1
+127.0.0.1:10001 4
+
+
+
+new weight to neighbor 127.0.0.1:10003 of 51
+new dv calculated:
+127.0.0.1:10003 51 127.0.0.1:10003		// good poison
+127.0.0.1:10001 4 127.0.0.1:10001
+Advertise DV to neighbors:
+127.0.0.1:10003 51
+127.0.0.1:10001 4
+
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 51
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10001
+127.0.0.1:10003 50
+127.0.0.1:10002 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 51
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10001
+127.0.0.1:10003 50
+127.0.0.1:10002 4
+Update sent to all neighbors at time 120
+Advertise DV to neighbors:
+127.0.0.1:10003 51
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 51
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10001
+127.0.0.1:10003 50
+127.0.0.1:10002 4
+Update sent to all neighbors at time 130
+Advertise DV to neighbors:
+127.0.0.1:10003 51
+127.0.0.1:10001 4
+
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 51
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10001
+127.0.0.1:10003 50
+127.0.0.1:10002 4
+Update sent to all neighbors at time 140
+Advertise DV to neighbors:
+127.0.0.1:10003 51
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 51
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10001
+127.0.0.1:10003 50
+127.0.0.1:10002 4
+Update sent to all neighbors at time 150
+Advertise DV to neighbors:
+127.0.0.1:10003 51
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 51
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10001
+127.0.0.1:10003 50
+127.0.0.1:10002 4
+Update sent to all neighbors at time 160
+Advertise DV to neighbors:
+127.0.0.1:10003 51
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 51
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10001
+127.0.0.1:10003 50
+127.0.0.1:10002 4
+Update sent to all neighbors at time 170
+Advertise DV to neighbors:
+127.0.0.1:10003 51
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 51
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10001
+127.0.0.1:10003 50
+127.0.0.1:10002 4
+Update sent to all neighbors at time 180
+Advertise DV to neighbors:
+127.0.0.1:10003 51
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 51
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10001
+127.0.0.1:10003 50
+127.0.0.1:10002 4
+Update sent to all neighbors at time 190
+Advertise DV to neighbors:
+127.0.0.1:10003 51
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 51
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10001
+127.0.0.1:10003 50
+127.0.0.1:10002 4
+Update sent to all neighbors at time 200
+Advertise DV to neighbors:
+127.0.0.1:10003 51
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 51
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10001
+127.0.0.1:10003 50
+127.0.0.1:10002 4
+Update sent to all neighbors at time 210
+Advertise DV to neighbors:
+127.0.0.1:10003 51
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 51
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10001
+127.0.0.1:10003 50
+127.0.0.1:10002 4
+Update sent to all neighbors at time 220
+Advertise DV to neighbors:
+127.0.0.1:10003 51
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 51
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10001
+127.0.0.1:10003 50
+127.0.0.1:10002 4
+Update sent to all neighbors at time 230
+Advertise DV to neighbors:
+127.0.0.1:10003 51
+127.0.0.1:10001 4
+new dv received from 127.0.0.1:10003
+127.0.0.1:10002 51
+127.0.0.1:10001 50
+new dv received from 127.0.0.1:10001
+127.0.0.1:10003 50
+127.0.0.1:10002 4
+Update sent to all neighbors at time 240
+Advertise DV to neighbors:
+127.0.0.1:10003 51
+127.0.0.1:10001 4
+BUILD STOPPED (total time: 3 minutes 50 seconds)
